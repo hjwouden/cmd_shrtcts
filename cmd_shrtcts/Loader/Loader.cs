@@ -33,7 +33,7 @@ namespace cmd_shrtcts
         {
             public List<string>? AdditionalNames { get; set; }
             public string? action { get; set; }
-            public string parameter { get; set; }
+            public string? parameter { get; set; }
         }
 
         public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)
@@ -145,12 +145,12 @@ namespace cmd_shrtcts
         public static void AddToConfig(string test)
         {
             //open the config file, append to it, close it
-            Console.WriteLine("Enter the new Action Name");
-            string action = Console.ReadLine();
-            Console.WriteLine("Enter the new Action Shortcut");
-            string shortcut = Console.ReadLine();
-            Console.WriteLine("Enter the link");
-            string link = Console.ReadLine();
+            //Console.WriteLine("Enter the new Action Name");
+            //string action = Console.ReadLine();
+            //Console.WriteLine("Enter the new Action Shortcut");
+            //string shortcut = Console.ReadLine();
+            //Console.WriteLine("Enter the link");
+            //string link = Console.ReadLine();
 
             //if (File.Exists(Loader.INPUT_CONFIG_LOCATIONS))
             //{
