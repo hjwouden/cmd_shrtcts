@@ -1,0 +1,12 @@
+﻿[
+  {
+    "AdditionalNames": [ "Standup Page" ],
+    "action": "OpenWebPage",
+    "parameter": "https://www.range.co/blog/complete-guide-daily-standup-meeting-agenda"
+  },
+  {
+    "AdditionalNames": [ "HR Portal", "HR" ],
+    "action": "OpenWebPage",
+    "parameter": "https://online.adp.com/"
+  }
+]

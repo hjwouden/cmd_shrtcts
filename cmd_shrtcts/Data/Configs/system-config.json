@@ -1,0 +1,12 @@
+﻿[
+  {
+    "AdditionalNames": [ "help" ],
+    "action": "OpenCMD",
+    "parameter": "cc list"
+  },
+  {
+    "AdditionalNames": [ "list" ],
+    "action": "list",
+    "parameter": ""
+  }
+]
