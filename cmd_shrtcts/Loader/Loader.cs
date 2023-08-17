@@ -16,52 +16,63 @@ namespace cmd_shrtcts
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
         
         public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
-        public static string INPUT_CONFIG_LOCATION = @".\Data\Configs\system-config.json";
+        public static string[] INPUT_CONFIG_LOCATIONS = 
+            { 
+                @".\Data\Configs\system-config.json", 
+                @".\Data\Configs\sample-config.json",
+                @".\Data\Configs\empty-config.json"
+            };
         public static string SUCCESS_SOUND_FILE_PATH = @".\Data\Sounds\chime.wav";
         public static string ERROR_SOUND_FILE_PATH = @".\Data\Sounds\chord.wav";
         public static string CHROME_BROWSER_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
-        public static Dictionary<string, Action<object>> actionsDictionary1;
-        public static Dictionary<string, Root> actionsDictionary;
+        public static Dictionary<string, Action<object>>? actionsDictionary1;
+        public static Dictionary<string, Root>? actionsDictionary;
 
         public class Root
         {
-            public List<string> AdditionalNames { get; set; }
-            public string action { get; set; }
+            public List<string>? AdditionalNames { get; set; }
+            public string? action { get; set; }
             public string parameter { get; set; }
         }
 
-        public static Dictionary<string, Root> LoadActionsDictionary(string configFile)
+        public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)
         {
             Dictionary<string, Root> actions = new Dictionary<string, Root>();
             actionsDictionary1 = new Dictionary<string, Action<object>>();
 
-            if (File.Exists(configFile))
+            foreach(string configFile in configFiles) 
             {
-                string json = File.ReadAllText(configFile);
-                List<Root> config = JsonConvert.DeserializeObject<List<Root>>(json);
-
-                foreach (Root a in config)
+                if (File.Exists(configFile))
                 {
-                    foreach (string b in a.AdditionalNames)
+                    string json = File.ReadAllText(configFile);
+                    List<Root> config = JsonConvert.DeserializeObject<List<Root>>(json);
+
+                    if (config != null && config.Count > 0)
                     {
-                        if (TryGetActionDelegate(a.action, out Action<object> action))
+                        foreach (Root a in config)
                         {
-                            actionsDictionary1[b] = action;
-                            actions[b] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter };
-                        }
-                        else
-                        {
-                            LogText("Invalid action configuration: " + b);
-                            PlaySound("error");
+                            foreach (string b in a.AdditionalNames)
+                            {
+                                if (TryGetActionDelegate(a.action, out Action<object> action))
+                                {
+                                    actionsDictionary1[b] = action;
+                                    actions[b] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter };
+                                }
+                                else
+                                {
+                                    LogText("Invalid action configuration: " + b);
+                                    PlaySound("error");
+                                }
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                LogText("Configuration file not found: " + configFile);
-                PlaySound("error");
+                else
+                {
+                    LogText("Configuration file not found: " + configFile);
+                    PlaySound("error");
+                }
             }
 
             return actions;
@@ -141,10 +152,10 @@ namespace cmd_shrtcts
             Console.WriteLine("Enter the link");
             string link = Console.ReadLine();
 
-            if (File.Exists(Loader.INPUT_CONFIG_LOCATION))
-            {
-
-            }
+            //if (File.Exists(Loader.INPUT_CONFIG_LOCATIONS))
+            //{
+                //Future - Allow additions to the config file
+            //}
         }
 
         /// <summary>

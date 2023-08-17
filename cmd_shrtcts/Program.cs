@@ -17,7 +17,7 @@
         {
             // Load Actions
             Loader.LogText("Test Logging Start");
-            Loader.actionsDictionary = Loader.LoadActionsDictionary(Loader.INPUT_CONFIG_LOCATION);
+            Loader.actionsDictionary = Loader.LoadActionsDictionary(Loader.INPUT_CONFIG_LOCATIONS);
 
             // Check for provided action in list
             if (args.Length > 0)
