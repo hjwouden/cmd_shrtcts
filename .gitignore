@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Custom File Exclusions
-Data/Configs/config.json
+**/Data/Configs/config.json
