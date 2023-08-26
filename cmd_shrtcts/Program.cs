@@ -4,13 +4,13 @@
     {
         static bool TryGetParameterFromJson(string value, out object parameter)
         {
-            if (Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
+            if (!Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
             {
-                parameter = result.parameter;
-                return true;
+                parameter = null;
+                return false;
             }
-            parameter = null;
-            return false;
+            parameter = result.parameter;
+            return true;
         }
 
         static void Main(string[] args)
