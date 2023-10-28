@@ -33,6 +33,17 @@ namespace cmd_shrtcts
             public string? parameter { get; set; }
         }
 
+        public static bool TryGetParameterFromJson(string value, out object parameter)
+        {
+            if (!Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
+            {
+                parameter = null;
+                return false;
+            }
+            parameter = result.parameter;
+            return true;
+        }
+
         public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)
         {
             Loader.LogText($"Loader: Loading Actions from Sources:");

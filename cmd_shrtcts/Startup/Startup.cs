@@ -37,5 +37,35 @@ namespace cmd_shrtcts
             Loader.INPUT_CONFIG_LOCATIONS = GetInputConfigsArray() ?? new string[] { @".\Data\Configs\system-config.json" };
             return true;
         }
+
+        internal void LoadActions()
+        {
+            Loader.actionsDictionary = Loader.LoadActionsDictionary(Loader.INPUT_CONFIG_LOCATIONS);
+        }
+
+        internal void ProcessParameter(string value)
+        {
+            Loader.LogText($"Processing Entered Parameter: {value}");
+
+
+            if (Loader.actionsDictionary1.TryGetValue(value, out Action<object> action))
+            {
+                if (!Loader.TryGetParameterFromJson(value, out object parameter) || parameter == "prompt")
+                {
+                    Loader.LogText("Enter a parameter:");
+                    parameter = Console.ReadLine();
+                }
+
+
+                // Invoke desired Action
+                action.Invoke(parameter);
+                Loader.PlaySound("success");
+            }
+            else
+            {
+                Loader.LogText("Invalid value!");
+                Loader.PlaySound("error");
+            }
+        }
     }
 }
