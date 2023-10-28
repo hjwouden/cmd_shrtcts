@@ -1,7 +1,17 @@
-﻿namespace cmd_shrtcts
+﻿using Microsoft.Extensions.Configuration;
+
+namespace cmd_shrtcts
 {
     internal class Program
     {
+        IConfiguration Configuration;
+
+        public Program(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+
         static bool TryGetParameterFromJson(string value, out object parameter)
         {
             if (!Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
@@ -15,8 +25,22 @@
 
         static void Main(string[] args)
         {
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .AddCommandLine(args)
+                .Build();
+
+            Loader.LogText("Test Config Load");
+            List<string> testVal = configuration.GetSection("Test:TestList").Get<List<string>>();
+            Loader.LogText(testVal.ToString());
+
+            
+
             // Load Actions
             Loader.LogText("Test Logging Start");
+            //Loader.setConfigurations();
             Loader.actionsDictionary = Loader.LoadActionsDictionary(Loader.INPUT_CONFIG_LOCATIONS);
 
             // Check for provided action in list

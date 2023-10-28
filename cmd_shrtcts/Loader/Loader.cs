@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace cmd_shrtcts
 {
-    public  class Loader
+    public class Loader
     {
+
+       
 
 
         //CONFIGURATION VALUES
@@ -17,7 +20,7 @@ namespace cmd_shrtcts
         
         public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
         public static string[] INPUT_CONFIG_LOCATIONS = 
-            { 
+            {  
                 @".\Data\Configs\system-config.json", 
                 @".\Data\Configs\sample-config.json",
                 @".\Data\Configs\empty-config.json"
