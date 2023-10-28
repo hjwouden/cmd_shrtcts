@@ -1,0 +1,9 @@
+﻿[
+  {
+    "AdditionalNames": [ "email" ],
+    "action": "OpenWebPage",
+    "parameter": "https://www.gmail.com"
+  }
+
+
+]

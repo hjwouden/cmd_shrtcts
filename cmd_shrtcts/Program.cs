@@ -18,17 +18,11 @@ namespace cmd_shrtcts
 
         static void Main(string[] args)
         {
-            Startup s = new Startup(args);
-            s.LoadVariables();
-
-            Loader.LogText("Test Config Load");
-
-
+            Startup startApp = new Startup(args);
+            startApp.LoadVariables();
             
 
             // Load Actions
-            Loader.LogText("Test Logging Start");
-            //Loader.setConfigurations();
             Loader.actionsDictionary = Loader.LoadActionsDictionary(Loader.INPUT_CONFIG_LOCATIONS);
 
             // Check for provided action in list

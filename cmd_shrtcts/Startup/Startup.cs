@@ -27,24 +27,14 @@ namespace cmd_shrtcts
             Loader.LogText("Startup: Loaded AppSettings");
         }
 
-        public string[] GetStringArray()
+        public string[]? GetInputConfigsArray()
         {
-            string[]? tsettings = _configuration.GetSection("Test:TestList").Get<string[]>();
-            if(tsettings == null)
-            {
-                return new string[] { "", ""};
-            }
-            else
-            {
-                return tsettings;
-            }
-
-            
+            return _configuration.GetSection("ApplicationVars:InputConfigs").Get<string[]>();
         }
 
         public bool LoadVariables()
         {
-            Loader.INPUT_CONFIG_LOCATIONS = GetStringArray();
+            Loader.INPUT_CONFIG_LOCATIONS = GetInputConfigsArray() ?? new string[] { @".\Data\Configs\system-config.json" };
             return true;
         }
     }

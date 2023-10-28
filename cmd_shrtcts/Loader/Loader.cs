@@ -11,19 +11,13 @@ namespace cmd_shrtcts
 {
     public class Loader
     {
-
-       
-
-
         //CONFIGURATION VALUES
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
         
         public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
         public static string[] INPUT_CONFIG_LOCATIONS = 
             {  
-                @".\Data\Configs\system-config.json", 
-                @".\Data\Configs\sample-config.json",
-                @".\Data\Configs\empty-config.json"
+                @".\Data\Configs\system-config.json"
             };
         public static string SUCCESS_SOUND_FILE_PATH = @".\Data\Sounds\chime.wav";
         public static string ERROR_SOUND_FILE_PATH = @".\Data\Sounds\chord.wav";
@@ -41,6 +35,9 @@ namespace cmd_shrtcts
 
         public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)
         {
+            Loader.LogText($"Loader: Loading Actions from Sources:");
+            configFiles.ToList().ForEach(value => Loader.LogText("\t" + value));
+
             Dictionary<string, Root> actions = new Dictionary<string, Root>();
             actionsDictionary1 = new Dictionary<string, Action<object>>();
 

@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # Custom File Exclusions
 **/Data/Configs/config.json
+cmd_shrtcts/Data/AppSettings/appsettings.prod.json
