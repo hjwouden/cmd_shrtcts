@@ -4,13 +4,6 @@ namespace cmd_shrtcts
 {
     internal class Program
     {
-        IConfiguration Configuration;
-
-        public Program(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
 
         static bool TryGetParameterFromJson(string value, out object parameter)
         {
@@ -25,16 +18,11 @@ namespace cmd_shrtcts
 
         static void Main(string[] args)
         {
-            IConfiguration configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .AddCommandLine(args)
-                .Build();
+            Startup s = new Startup(args);
+            s.LoadVariables();
 
             Loader.LogText("Test Config Load");
-            List<string> testVal = configuration.GetSection("Test:TestList").Get<List<string>>();
-            Loader.LogText(testVal.ToString());
+
 
             
 
