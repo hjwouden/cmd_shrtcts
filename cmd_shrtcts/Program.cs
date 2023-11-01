@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Spectre.Console;
+
 
 namespace cmd_shrtcts
 {
@@ -6,8 +8,8 @@ namespace cmd_shrtcts
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Environment: " + Environment.CurrentDirectory);
-            Console.WriteLine("Assembly: " + System.Reflection.Assembly.GetExecutingAssembly().Location);
+            AnsiConsole.Markup("[underline red]cmd_shrts[/]\n");
+           // AnsiConsole.Markup("Assembly: " + System.Reflection.Assembly.GetExecutingAssembly().Location);
             try
             {
                 Startup startApp = new Startup(args);

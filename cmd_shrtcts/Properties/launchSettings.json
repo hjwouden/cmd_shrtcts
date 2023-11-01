@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "cmd_shrtcts": {
+      "commandName": "Project",
+      "commandLineArgs": "list",
+      "workingDirectory": "C:\\"
+    }
+  }
+}

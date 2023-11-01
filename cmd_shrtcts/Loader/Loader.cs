@@ -6,6 +6,7 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Threading.Tasks;
+using Spectre.Console;
 
 namespace cmd_shrtcts
 {
@@ -138,11 +139,22 @@ namespace cmd_shrtcts
 
         public static void ListActions(string param)
         {
-            Console.WriteLine("List Here::::::");
+            AnsiConsole.Markup("[underline red]cmd_shrts[/]\n");
+
+            Dictionary<string, string[]> newPairs = new Dictionary<string, string[]>();
+
+            var root = new Tree("Root");
+
             foreach (var x in actionsDictionary)
             {
-                Console.WriteLine(x.Key);
+                var a = root.AddNode(x.Key);
+                foreach (var y in x.Value.AdditionalNames)
+                {
+                    a.AddNode(y);
+                }
             }
+
+            AnsiConsole.Write(root);
         }
 
 

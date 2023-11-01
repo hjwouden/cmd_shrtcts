@@ -29,9 +29,7 @@ namespace cmd_shrtcts
             Loader.LogText("Startup: Loaded AppSettings");
 
             LoadVariables();
-            Loader.LogText("Startup: Loaded Variables");
             LoadActions();
-            Loader.LogText("Startup: Loaded Actions");
         }
 
         public string[]? GetInputConfigsArray()
@@ -42,12 +40,14 @@ namespace cmd_shrtcts
 
         public bool LoadVariables()
         {
+            Loader.LogText("Startup: Loaded Variables");
             Loader.INPUT_CONFIG_LOCATIONS = GetInputConfigsArray() ?? new string[] { @".\Data\Configs\system-config.json" };
             return true;
         }
 
         internal void LoadActions()
         {
+            Loader.LogText("Startup: Loaded Actions");
             Loader.actionsDictionary = Loader.LoadActionsDictionary(Loader.INPUT_CONFIG_LOCATIONS);
         }
 
