@@ -14,6 +14,7 @@ namespace cmd_shrtcts
         //CONFIGURATION VALUES
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
         
+
         public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
         public static string[] INPUT_CONFIG_LOCATIONS = 
             {  
@@ -22,6 +23,7 @@ namespace cmd_shrtcts
         public static string SUCCESS_SOUND_FILE_PATH = @".\Data\Sounds\chime.wav";
         public static string ERROR_SOUND_FILE_PATH = @".\Data\Sounds\chord.wav";
         public static string CHROME_BROWSER_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+        public static string ASSEMBLY_LOCATION = "";
 
         public static Dictionary<string, Action<object>>? actionsDictionary1;
         public static Dictionary<string, Root>? actionsDictionary;
@@ -44,6 +46,12 @@ namespace cmd_shrtcts
             return true;
         }
 
+        public static string ChangeFromLocalToDirectoryPath(string fileName)
+        {
+            string newPath = new DirectoryInfo(Path.Combine(Loader.ASSEMBLY_LOCATION, fileName)).FullName;
+            return newPath;
+        }
+
         public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)
         {
             Loader.LogText($"Loader: Loading Actions from Sources:");
@@ -54,9 +62,20 @@ namespace cmd_shrtcts
 
             foreach(string configFile in configFiles) 
             {
-                if (File.Exists(configFile))
+                string useThisConfigFilePath = configFile;
+               
+                if (!File.Exists(useThisConfigFilePath))
                 {
-                    string json = File.ReadAllText(configFile);
+                    useThisConfigFilePath = ChangeFromLocalToDirectoryPath(configFile);
+                    if (!File.Exists(useThisConfigFilePath))
+                    {
+                        throw new Exception(message: "File Not Found");
+                    }
+                }
+
+                if (File.Exists(useThisConfigFilePath))
+                {
+                    string json = File.ReadAllText(useThisConfigFilePath);
                     List<Root> config = JsonConvert.DeserializeObject<List<Root>>(json);
 
                     if (config != null && config.Count > 0)
@@ -81,7 +100,7 @@ namespace cmd_shrtcts
                 }
                 else
                 {
-                    LogText("Configuration file not found: " + configFile);
+                    LogText("Configuration file not found: " + useThisConfigFilePath);
                     PlaySound("error");
                 }
             }
@@ -207,12 +226,20 @@ namespace cmd_shrtcts
                 filePath = Loader.SUCCESS_SOUND_FILE_PATH;
             }
 
-            SoundPlayer player = new SoundPlayer(filePath);
+            try
+            {
+                SoundPlayer player = new SoundPlayer(filePath);
 
-            // Play the sound
-            player.Play();
-            TimeSpan waitTime = TimeSpan.FromSeconds(2);
-            Thread.Sleep(waitTime);
+                // Play the sound
+                player.Play();
+                TimeSpan waitTime = TimeSpan.FromSeconds(2);
+                Thread.Sleep(waitTime);
+            }
+            catch (Exception ex)
+            {
+                LogText(ex.ToString());
+            }
+            
 
         }
     }

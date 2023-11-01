@@ -13,10 +13,12 @@ namespace cmd_shrtcts
 
         public Startup(string[] args)
         {
+            SetSystemVariables();
+
             Loader.LogText("Startup: Loading AppSettings...");
 
             IConfiguration configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(Loader.ASSEMBLY_LOCATION)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
@@ -25,10 +27,16 @@ namespace cmd_shrtcts
             _configuration = configuration;
 
             Loader.LogText("Startup: Loaded AppSettings");
+
+            LoadVariables();
+            Loader.LogText("Startup: Loaded Variables");
+            LoadActions();
+            Loader.LogText("Startup: Loaded Actions");
         }
 
         public string[]? GetInputConfigsArray()
         {
+            Loader.LogText("GetInputConfigsArray");
             return _configuration.GetSection("ApplicationVars:InputConfigs").Get<string[]>();
         }
 
@@ -67,5 +75,17 @@ namespace cmd_shrtcts
                 Loader.PlaySound("error");
             }
         }
+
+        internal void SetSystemVariables()
+        {
+            Loader.ASSEMBLY_LOCATION = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            Loader.ASSEMBLY_LOCATION = Loader.ChangeFromLocalToDirectoryPath(@"..\");
+            Loader.OUTPUT_LOG_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(@".\log.txt");
+            Loader.SUCCESS_SOUND_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(Loader.SUCCESS_SOUND_FILE_PATH);
+            Loader.ERROR_SOUND_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(Loader.ERROR_SOUND_FILE_PATH);
+
+        }
+
+
     }
 }
