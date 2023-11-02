@@ -13,19 +13,18 @@ namespace cmd_shrtcts
     public class Loader
     {
         //CONFIGURATION VALUES
+        public static string ASSEMBLY_LOCATION = "";
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        
-
-        public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
-        public static string[] INPUT_CONFIG_LOCATIONS = 
-            {  
-                @".\Data\Configs\system-config.json"
-            };
         public static string SUCCESS_SOUND_FILE_PATH = @".\Data\Sounds\chime.wav";
         public static string ERROR_SOUND_FILE_PATH = @".\Data\Sounds\chord.wav";
         public static string CHROME_BROWSER_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-        public static string ASSEMBLY_LOCATION = "";
+        public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
+        public static string[] INPUT_CONFIG_LOCATIONS =
+            {
+                @".\Data\Configs\system-config.json"
+            };
 
+        //SHARED OBJECTS
         public static Dictionary<string, Action<object>>? actionsDictionary1;
         public static Dictionary<string, Root>? actionsDictionary;
 

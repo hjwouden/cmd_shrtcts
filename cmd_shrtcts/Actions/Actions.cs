@@ -104,7 +104,7 @@ namespace cmd_shrtcts
             }
             catch (Exception ex)
             {
-                LogText(ex.ToString());
+                Loader.LogText(ex.ToString());
             }
 
 

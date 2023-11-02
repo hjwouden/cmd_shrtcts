@@ -67,12 +67,12 @@ namespace cmd_shrtcts
 
                 // Invoke desired Action
                 action.Invoke(parameter);
-                Loader.PlaySound("success");
+                Actions.PlaySound("success");
             }
             else
             {
                 Loader.LogText("Invalid value!");
-                Loader.PlaySound("error");
+                Actions.PlaySound("error");
             }
         }
 
