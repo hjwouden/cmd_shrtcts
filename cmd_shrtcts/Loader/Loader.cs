@@ -37,13 +37,16 @@ namespace cmd_shrtcts
 
         public static bool TryGetParameterFromJson(string value, out object parameter)
         {
-            if (!Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
+            if(Loader.actionsDictionary != null)
             {
-                parameter = null;
-                return false;
+                if (Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
+                {
+                    parameter = result.parameter;
+                    return true;
+                }
             }
-            parameter = result.parameter;
-            return true;
+            parameter = null;
+            return false;
         }
 
         public static string ChangeFromLocalToDirectoryPath(string fileName)
