@@ -9,7 +9,7 @@ namespace cmd_shrtcts
         static void Main(string[] args)
         {
             AnsiConsole.Markup("[underline red]cmd_shrts[/]\n");
-           // AnsiConsole.Markup("Assembly: " + System.Reflection.Assembly.GetExecutingAssembly().Location);
+            //AnsiConsole.Write(new FigletText("CMD SHRTCTS").LeftJustified().Color(Color.Red));
             try
             {
                 Startup startApp = new Startup(args);

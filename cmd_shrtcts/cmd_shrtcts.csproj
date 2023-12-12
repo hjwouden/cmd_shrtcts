@@ -51,4 +51,8 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="call &quot;C:\Users\henry.wouden\OneDrive - Nice Systems Ltd\Desktop\ShrtCt Files\post-shrtcuts.bat&quot;" />
+  </Target>
+
 </Project>

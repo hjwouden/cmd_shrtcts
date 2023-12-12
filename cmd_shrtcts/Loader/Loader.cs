@@ -133,6 +133,9 @@ namespace cmd_shrtcts
                 case "PutTextOnClipboard":
                     action = (parameter) => Actions.TextToClipboard(parameter.ToString());
                     return true;
+                case "Menu":
+                    action = (parameter) => Actions.SelectMenu();
+                    return true;
                 default:
                     action = null;
                     return false;

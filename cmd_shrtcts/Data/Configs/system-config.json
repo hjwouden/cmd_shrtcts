@@ -8,5 +8,10 @@
     "AdditionalNames": [ "list" ],
     "action": "list",
     "parameter": ""
+  },
+  {
+    "AdditionalNames": [ "menu" ],
+    "action": "Menu",
+    "parameter":  ""
   }
 ]

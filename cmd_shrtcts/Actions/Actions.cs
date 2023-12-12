@@ -26,19 +26,43 @@ namespace cmd_shrtcts
             AnsiConsole.Markup("[underline red]cmd_shrts[/]\n");
 
             Dictionary<string, string[]> newPairs = new Dictionary<string, string[]>();
+            List<string> alreadyInserted = new List<string>();
 
             var root = new Tree("Root");
 
             foreach (var x in Loader.actionsDictionary)
             {
-                var a = root.AddNode(x.Key);
-                foreach (var y in x.Value.AdditionalNames)
+                if (!alreadyInserted.Contains(x.Key))
                 {
-                    a.AddNode(y);
+                    var a = root.AddNode(x.Key);
+                    alreadyInserted.Add(x.Key);
+                    foreach (var y in x.Value.AdditionalNames)
+                    {
+                        if (!alreadyInserted.Contains(y))
+                        {
+                            a.AddNode(y);
+                            alreadyInserted.Add(y);
+                        }
+                    }
                 }
             }
 
             AnsiConsole.Write(root);
+        }
+
+        public static void SelectMenu()
+        {
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Select from Menu:")
+                .PageSize(10)
+                .MoreChoicesText("Move up and down to reveal more choices")
+                .AddChoices(new[]
+                    {
+                        "test", "Test2", "test3"
+                    }
+                )
+            );
         }
 
         public static void TextToClipboard(string pathToTextFile)
