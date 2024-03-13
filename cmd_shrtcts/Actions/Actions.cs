@@ -5,6 +5,7 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Threading.Tasks;
+using static cmd_shrtcts.Loader;
 
 namespace cmd_shrtcts
 {
@@ -20,6 +21,35 @@ namespace cmd_shrtcts
             process.StartInfo = startInfo;
             process.Start();
         }
+
+
+        public static string[] getHelpMenuChoices()
+        {
+            List<string> root = new List<string>();
+            List<string> alreadyInserted = new List<string>();
+
+            foreach (var x in Loader.actionsDictionary)
+            {
+                if (!alreadyInserted.Contains(x.Key))
+                {
+                    root.Add(x.Key);
+                    alreadyInserted.Add(x.Key);
+                    foreach (var y in x.Value.AdditionalNames)
+                    {
+                        if (!alreadyInserted.Contains(y))
+                        {
+                            //a.AddNode(y);
+                            alreadyInserted.Add(y);
+                        }
+                    }
+                }
+            }
+
+            return root.ToArray();
+
+
+        }
+
 
         public static void ListActions(string param)
         {
@@ -55,14 +85,21 @@ namespace cmd_shrtcts
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Select from Menu:")
-                .PageSize(10)
+                .PageSize(20)
                 .MoreChoicesText("Move up and down to reveal more choices")
-                .AddChoices(new[]
-                    {
-                        "test", "Test2", "test3"
-                    }
-                )
+                .AddChoices(getHelpMenuChoices())
+                //.AddChoices(new[]
+                //    {
+                //        "test", "Test2", "test3"
+                //    }
+                //)
             );
+
+            LogText("Menu Selection: " +  selection);
+
+            OpenCMD("cc " + selection);
+
+
         }
 
         public static void TextToClipboard(string pathToTextFile)
