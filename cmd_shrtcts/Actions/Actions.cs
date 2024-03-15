@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Media;
 using System.Text;
@@ -144,6 +145,35 @@ namespace cmd_shrtcts
             process.StartInfo.UseShellExecute = true;
             process.StartInfo.Arguments = $"/K {cmd}";
             process.Start();
+        }
+
+        public static void OpenCMDWithParams(string cmd, string param)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                RedirectStandardInput = true,
+                UseShellExecute = false
+            };
+
+            Process cmdProcess = new Process
+            {
+                StartInfo = startInfo
+            };
+
+            cmdProcess.Start();
+
+            // Write the command to the standard input stream
+            cmdProcess.StandardInput.WriteLine(cmd);
+
+
+
+            // Write the password to the standard input stream
+            cmdProcess.StandardInput.WriteLine(param);
+            cmdProcess.StandardInput.Flush();
+
+            cmdProcess.WaitForExit();
+            cmdProcess.Close();
         }
 
         public static void PlaySound(string kind)
