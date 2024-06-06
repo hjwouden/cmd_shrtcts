@@ -12,6 +12,11 @@
   {
     "AdditionalNames": [ "menu" ],
     "action": "Menu",
-    "parameter":  ""
+    "parameter": ""
+  },
+  {
+    "AdditionalNames": [ "add", "new" ],
+    "action": "AddToConfig",
+    "parameter": ""
   }
 ]

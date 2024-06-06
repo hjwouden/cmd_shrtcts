@@ -128,7 +128,7 @@ namespace cmd_shrtcts
                     action = (parameter) => Actions.OpenCMD(parameter.ToString());
                     return true;
                 case "OpenCMDWithParams":
-                    action = (parameter) => Actions.OpenCMDWithParams(parameter.ToString().Split(',')[0], parameter.ToString().Split(',')[1];
+                    action = (parameter) => Actions.OpenCMDWithParams(parameter.ToString().Split(',')[0], parameter.ToString().Split(',')[1]);
                     return true;
                 case "list":
                     action = (parameter) => Actions.ListActions(parameter.ToString());
