@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using Newtonsoft.Json;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -47,7 +48,6 @@ namespace cmd_shrtcts
             }
 
             return root.ToArray();
-
 
         }
 
@@ -118,9 +118,89 @@ namespace cmd_shrtcts
             Console.WriteLine("Open File");
         }
 
-        public static void AddToConfig(string test)
+
+        public static void AddToConfig(string input)
+        {
+
+            Console.WriteLine("");
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Select file to save action to:")
+                .PageSize(20)
+                .MoreChoicesText("Move up and down to reveal more choices")
+                .AddChoices(Loader.INPUT_CONFIG_LOCATIONS)
+            );
+
+            LogText("Menu Selection: " + selection);
+
+            string absoluteFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, selection);
+
+            string filePath = absoluteFilePath;
+
+            // Get input for the JSON object parameters
+            Console.WriteLine("Enter comma-separated additional names (e.g., name1, name2): ");
+            string namesInput = Console.ReadLine();
+            List<string> additionalNames = namesInput.Split(',').Select(name => name.Trim()).ToList();
+
+            Console.WriteLine("Enter the action (e.g., OpenWebPage): ");
+            string action = Console.ReadLine();
+
+            Console.WriteLine("Enter the parameter (e.g., https://google.com): ");
+            string parameter = Console.ReadLine();
+
+            // Create the JSON object using an anonymous type
+            var jsonObject = new
+            {
+                AdditionalNames = additionalNames,
+                Action = action,
+                Parameter = parameter
+            };
+
+            List<dynamic> jsonObjects = new List<dynamic>();
+            if (File.Exists(filePath))
+            {
+                string fileContent = File.ReadAllText(filePath);
+                jsonObjects = JsonConvert.DeserializeObject<List<dynamic>>(fileContent);
+            }
+
+            // Add the new JSON object to the list
+            jsonObjects.Add(jsonObject);
+
+            // Serialize the updated list to JSON and overwrite the file
+            string updatedJson = JsonConvert.SerializeObject(jsonObjects, Formatting.Indented);
+            File.WriteAllText(filePath, updatedJson);
+
+            Console.WriteLine("JSON object appended successfully!");
+        }
+
+
+
+        public static void AddToConfig2(string test)
         {
             //open the config file, append to it, close it
+            //Console.WriteLine("Select the Action Type:");
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                .Title("Select the Action Type:")
+                .PageSize(20)
+                .MoreChoicesText("Move up and down to reveal more choices")
+                .AddChoices(new[]
+                    {
+                        "OpenWebPage", "OpenCMD", "PutTextOnClipboard", "OpenFile"
+                    }
+                )
+            );
+
+            switch(selection)
+            {
+                case "OpenWebPage":
+                    Console.WriteLine("Enter URL:");
+                    var url = Console.ReadLine();
+                    Console.WriteLine("Enter shortcut text:");
+                    var text = Console.ReadLine();
+                    break;
+            }
             //Console.WriteLine("Enter the new Action Name");
             //string action = Console.ReadLine();
             //Console.WriteLine("Enter the new Action Shortcut");
@@ -133,6 +213,13 @@ namespace cmd_shrtcts
             //Future - Allow additions to the config file
             //}
         }
+
+
+        public static void AddActionToConfig(string configFilePath, string jsonActionToAdd)
+        {
+
+        }
+
 
         /// <summary>
         /// Opens a Command Prompt and Keeps it open
