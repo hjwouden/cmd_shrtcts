@@ -24,6 +24,44 @@ namespace cmd_shrtcts
                 @".\Data\Configs\system-config.json"
             };
 
+        public static string GetUserDataDirectory()
+        {
+            var baseDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(baseDir, "cmd_shrtcts");
+        }
+
+        public static string GetUserAppSettingsPath()
+        {
+            return Path.Combine(GetUserDataDirectory(), "appsettings.json");
+        }
+
+        public static string GetPackagedAppSettingsPath()
+        {
+            return Path.Combine(ASSEMBLY_LOCATION, "appsettings.json");
+        }
+
+        public static void EnsureUserAppSettingsExists()
+        {
+            var userDir = GetUserDataDirectory();
+            var userSettings = GetUserAppSettingsPath();
+            if (File.Exists(userSettings))
+            {
+                return;
+            }
+
+            Directory.CreateDirectory(userDir);
+
+            var packaged = GetPackagedAppSettingsPath();
+            if (File.Exists(packaged))
+            {
+                File.Copy(packaged, userSettings, overwrite: false);
+            }
+            else
+            {
+                File.WriteAllText(userSettings, "{\"ApplicationVars\":{\"InputConfigs\":[\".\\\\Data\\\\Configs\\\\system-config.json\"]}}" + Environment.NewLine);
+            }
+        }
+
         //SHARED OBJECTS
         public static Dictionary<string, Action<object>>? actionsDictionary1;
         public static Dictionary<string, Root>? actionsDictionary;
@@ -138,6 +176,12 @@ namespace cmd_shrtcts
                     return true;
                 case "Menu":
                     action = (parameter) => Actions.SelectMenu();
+                    return true;
+                case "SetConfigPath":
+                    action = (parameter) => Actions.SetConfigPath(parameter.ToString());
+                    return true;
+                case "RemoveFromConfig":
+                    action = (parameter) => Actions.RemoveFromConfig(parameter.ToString());
                     return true;
                 default:
                     action = null;

@@ -2,9 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>warnings</Nullable>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>cc</ToolCommandName>
+
+    <PackageId>cmd_shrtcts</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>cmd_shrtcts</Authors>
+    <Description>Command shortcuts CLI tool</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,8 +59,8 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call &quot;C:\Users\henry.wouden\OneDrive - Nice Systems Ltd\Desktop\ShrtCt Files\post-shrtcuts.bat&quot;" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(IsPacking)' != 'true'">
+    <Exec Command="call &quot;C:\DEV\github\cmd_shrtcts\cmd_shrtcts\Properties\post-build.bat&quot; $(Configuration)" />
   </Target>
 
 </Project>

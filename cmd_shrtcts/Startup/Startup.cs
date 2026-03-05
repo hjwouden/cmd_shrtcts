@@ -17,9 +17,15 @@ namespace cmd_shrtcts
 
             Loader.LogText("Startup: Loading AppSettings...");
 
+            Loader.EnsureUserAppSettingsExists();
+
+            var userAppSettingsPath = Loader.GetUserAppSettingsPath();
+            var packagedAppSettingsPath = Loader.GetPackagedAppSettingsPath();
+
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Loader.ASSEMBLY_LOCATION)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile(userAppSettingsPath, optional: true, reloadOnChange: true)
+                .AddJsonFile(packagedAppSettingsPath, optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .Build();

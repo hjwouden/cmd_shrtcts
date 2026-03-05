@@ -18,5 +18,23 @@
     "AdditionalNames": [ "add", "new" ],
     "action": "AddToConfig",
     "parameter": ""
+  },
+  {
+    "AdditionalNames": [
+      "setconfig",
+      "set-config",
+      "SetConfigPath"
+    ],
+    "action": "SetConfigPath",
+    "parameter": "prompt"
+  },
+  {
+    "AdditionalNames": [
+      "remove",
+      "delete",
+      "RemoveFromConfig"
+    ],
+    "action": "RemoveFromConfig",
+    "parameter": ""
   }
 ]

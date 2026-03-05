@@ -8,10 +8,11 @@ using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using static cmd_shrtcts.Loader;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace cmd_shrtcts
 {
-    public static class Actions
+    public static partial class Actions
     {
         public static void OpenWebPage(string path)
         {
@@ -86,14 +87,9 @@ namespace cmd_shrtcts
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Select from Menu:")
-                .PageSize(20)
+                .PageSize(25)
                 .MoreChoicesText("Move up and down to reveal more choices")
                 .AddChoices(getHelpMenuChoices())
-                //.AddChoices(new[]
-                //    {
-                //        "test", "Test2", "test3"
-                //    }
-                //)
             );
 
             LogText("Menu Selection: " +  selection);
@@ -113,9 +109,31 @@ namespace cmd_shrtcts
 
         }
 
-        public static void OpenFile(string path)
+        public static void OpenFile(string filePath)
         {
-            Console.WriteLine("Open File");
+            try
+            {
+                // Check if the file exists
+                if (!File.Exists(filePath))
+                {
+                    Console.WriteLine($"Error: File '{filePath}' not found.");
+                    return; // Exit the method if the file doesn't exist
+                }
+
+                // Use the Process class to start the associated program
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = filePath,
+                    UseShellExecute = true // Use the shell for proper file association handling
+                };
+
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error opening file: {ex.Message}");
+                // You might want to log the error for debugging
+            }
         }
 
 
@@ -143,18 +161,60 @@ namespace cmd_shrtcts
             string namesInput = Console.ReadLine();
             List<string> additionalNames = namesInput.Split(',').Select(name => name.Trim()).ToList();
 
-            Console.WriteLine("Enter the action (e.g., OpenWebPage): ");
-            string action = Console.ReadLine();
+            var action = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select the Action Type:")
+                    .PageSize(10)
+                    .MoreChoicesText("Move up and down to reveal more choices")
+                    .AddChoices(new[]
+                    {
+                        "OpenWebPage", "OpenCMD", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams"
+                    })
+            );
 
-            Console.WriteLine("Enter the parameter (e.g., https://google.com): ");
-            string parameter = Console.ReadLine();
+            string parameter;
+            switch (action)
+            {
+                case "OpenWebPage":
+                    Console.WriteLine("Enter URL:");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenCMD":
+                    Console.WriteLine("Enter the command (e.g., dir, cc menu, etc):");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "PutTextOnClipboard":
+                    Console.WriteLine("Enter full path to text file:");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenFile":
+                    Console.WriteLine("Enter full path to file:");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenCMDWithParams":
+                    Console.WriteLine("Enter the command:");
+                    var cmd = Console.ReadLine();
+                    Console.WriteLine("Enter the parameter/password:");
+                    var param = Console.ReadLine();
+                    parameter = $"{cmd},{param}";
+                    break;
+
+                default:
+                    Console.WriteLine("Enter the parameter:");
+                    parameter = Console.ReadLine();
+                    break;
+            }
 
             // Create the JSON object using an anonymous type
             var jsonObject = new
             {
                 AdditionalNames = additionalNames,
-                Action = action,
-                Parameter = parameter
+                action = action,
+                parameter = parameter
             };
 
             List<dynamic> jsonObjects = new List<dynamic>();
@@ -172,46 +232,6 @@ namespace cmd_shrtcts
             File.WriteAllText(filePath, updatedJson);
 
             Console.WriteLine("JSON object appended successfully!");
-        }
-
-
-
-        public static void AddToConfig2(string test)
-        {
-            //open the config file, append to it, close it
-            //Console.WriteLine("Select the Action Type:");
-            var selection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Select the Action Type:")
-                .PageSize(20)
-                .MoreChoicesText("Move up and down to reveal more choices")
-                .AddChoices(new[]
-                    {
-                        "OpenWebPage", "OpenCMD", "PutTextOnClipboard", "OpenFile"
-                    }
-                )
-            );
-
-            switch(selection)
-            {
-                case "OpenWebPage":
-                    Console.WriteLine("Enter URL:");
-                    var url = Console.ReadLine();
-                    Console.WriteLine("Enter shortcut text:");
-                    var text = Console.ReadLine();
-                    break;
-            }
-            //Console.WriteLine("Enter the new Action Name");
-            //string action = Console.ReadLine();
-            //Console.WriteLine("Enter the new Action Shortcut");
-            //string shortcut = Console.ReadLine();
-            //Console.WriteLine("Enter the link");
-            //string link = Console.ReadLine();
-
-            //if (File.Exists(Loader.INPUT_CONFIG_LOCATIONS))
-            //{
-            //Future - Allow additions to the config file
-            //}
         }
 
 
