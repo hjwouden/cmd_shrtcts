@@ -36,5 +36,14 @@
     ],
     "action": "RemoveFromConfig",
     "parameter": ""
+  },
+  {
+    "AdditionalNames": [
+      "removeconfig",
+      "remove-config",
+      "RemoveConfigPath"
+    ],
+    "action": "RemoveConfigPath",
+    "parameter": ""
   }
 ]

@@ -5,6 +5,59 @@ namespace cmd_shrtcts;
 
 public static partial class Actions
 {
+    public static void RemoveConfigPath(string unused)
+    {
+        Loader.EnsureUserAppSettingsExists();
+
+        var userAppSettingsPath = Loader.GetUserAppSettingsPath();
+        
+        var existing = new ConfigurationModel();
+        if (File.Exists(userAppSettingsPath))
+        {
+            try
+            {
+                var json = File.ReadAllText(userAppSettingsPath);
+                existing = JsonConvert.DeserializeObject<ConfigurationModel>(json) ?? new ConfigurationModel();
+            }
+            catch
+            {
+                existing = new ConfigurationModel();
+            }
+        }
+
+        existing.ApplicationVars ??= new ApplicationVars();
+        var currentConfigs = (existing.ApplicationVars.InputConfigs ?? Array.Empty<string>())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+
+        if (currentConfigs.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[yellow]No config paths configured.[/]");
+            return;
+        }
+
+        var chosen = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select config path to remove:")
+                .PageSize(15)
+                .MoreChoicesText("Move up and down to reveal more choices")
+                .AddChoices(currentConfigs)
+        );
+
+        var confirm = AnsiConsole.Confirm($"Remove: {chosen} ?", defaultValue: false);
+        if (!confirm)
+        {
+            AnsiConsole.MarkupLine("[grey]Cancelled.[/]");
+            return;
+        }
+
+        currentConfigs.Remove(chosen);
+        existing.ApplicationVars.InputConfigs = currentConfigs.ToArray();
+
+        File.WriteAllText(userAppSettingsPath, JsonConvert.SerializeObject(existing, Formatting.Indented));
+        AnsiConsole.MarkupLine($"[green]Removed config path:[/] {chosen}");
+    }
+
     public static void RemoveFromConfig(string input)
     {
         Console.WriteLine("");

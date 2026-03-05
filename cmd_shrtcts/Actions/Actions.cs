@@ -291,6 +291,11 @@ namespace cmd_shrtcts
                 filePath = Loader.SUCCESS_SOUND_FILE_PATH;
             }
 
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return; // Sound file not available, skip silently
+            }
+
             try
             {
                 SoundPlayer player = new SoundPlayer(filePath);

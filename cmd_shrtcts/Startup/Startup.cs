@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,9 +88,12 @@ namespace cmd_shrtcts
             Loader.ASSEMBLY_LOCATION = System.Reflection.Assembly.GetExecutingAssembly().Location;
             Loader.ASSEMBLY_LOCATION = Loader.ChangeFromLocalToDirectoryPath(@"..\");
             Loader.OUTPUT_LOG_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(@".\log.txt");
-            Loader.SUCCESS_SOUND_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(Loader.SUCCESS_SOUND_FILE_PATH);
-            Loader.ERROR_SOUND_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(Loader.ERROR_SOUND_FILE_PATH);
-
+            
+            var successSoundPath = Loader.ChangeFromLocalToDirectoryPath(Loader.SUCCESS_SOUND_FILE_PATH);
+            var errorSoundPath = Loader.ChangeFromLocalToDirectoryPath(Loader.ERROR_SOUND_FILE_PATH);
+            
+            Loader.SUCCESS_SOUND_FILE_PATH = File.Exists(successSoundPath) ? successSoundPath : null;
+            Loader.ERROR_SOUND_FILE_PATH = File.Exists(errorSoundPath) ? errorSoundPath : null;
         }
 
 

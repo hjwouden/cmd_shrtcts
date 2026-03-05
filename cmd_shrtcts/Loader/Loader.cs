@@ -108,13 +108,15 @@ namespace cmd_shrtcts
                 if (!File.Exists(useThisConfigFilePath))
                 {
                     useThisConfigFilePath = ChangeFromLocalToDirectoryPath(configFile);
-                    if (!File.Exists(useThisConfigFilePath))
-                    {
-                        throw new Exception(message: "File Not Found");
-                    }
                 }
 
-                if (File.Exists(useThisConfigFilePath))
+                if (!File.Exists(useThisConfigFilePath))
+                {
+                    LogText($"Configuration file not found: {configFile} (checked: {useThisConfigFilePath})");
+                    continue; // Skip this config file instead of crashing
+                }
+
+                try
                 {
                     string json = File.ReadAllText(useThisConfigFilePath);
                     List<Root> config = JsonConvert.DeserializeObject<List<Root>>(json);
@@ -139,11 +141,15 @@ namespace cmd_shrtcts
                         }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    LogText("Configuration file not found: " + useThisConfigFilePath);
-                    Actions.PlaySound("error");
+                    LogText($"Error loading config file {useThisConfigFilePath}: {ex.Message}");
                 }
+            }
+
+            if (actions.Count == 0)
+            {
+                LogText("WARNING: No actions loaded from any config file!");
             }
 
             return actions;
@@ -182,6 +188,9 @@ namespace cmd_shrtcts
                     return true;
                 case "RemoveFromConfig":
                     action = (parameter) => Actions.RemoveFromConfig(parameter.ToString());
+                    return true;
+                case "RemoveConfigPath":
+                    action = (parameter) => Actions.RemoveConfigPath(parameter.ToString());
                     return true;
                 default:
                     action = null;
