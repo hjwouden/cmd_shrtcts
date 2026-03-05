@@ -192,6 +192,12 @@ namespace cmd_shrtcts
                 case "RemoveConfigPath":
                     action = (parameter) => Actions.RemoveConfigPath(parameter.ToString());
                     return true;
+                case "AddNote":
+                    action = (parameter) => Actions.AddNote(parameter.ToString());
+                    return true;
+                case "ConfigureNote":
+                    action = (parameter) => Actions.ConfigureNote(parameter.ToString());
+                    return true;
                 default:
                     action = null;
                     return false;
