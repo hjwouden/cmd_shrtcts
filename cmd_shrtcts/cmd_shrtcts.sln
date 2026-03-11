@@ -5,6 +5,8 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cmd_shrtcts", "cmd_shrtcts.csproj", "{A34EFB5F-1518-41A6-9356-C510F081217D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cmd_shrtcts.Tests", "..\cmd_shrtcts.Tests\cmd_shrtcts.Tests.csproj", "{3FF4C4A3-2D7E-42BE-962F-782FDF60668B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{A34EFB5F-1518-41A6-9356-C510F081217D}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{A34EFB5F-1518-41A6-9356-C510F081217D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A34EFB5F-1518-41A6-9356-C510F081217D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FF4C4A3-2D7E-42BE-962F-782FDF60668B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FF4C4A3-2D7E-42BE-962F-782FDF60668B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FF4C4A3-2D7E-42BE-962F-782FDF60668B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FF4C4A3-2D7E-42BE-962F-782FDF60668B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
