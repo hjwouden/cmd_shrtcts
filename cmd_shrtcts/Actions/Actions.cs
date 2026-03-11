@@ -32,18 +32,20 @@ namespace cmd_shrtcts
             List<string> root = new List<string>();
             List<string> alreadyInserted = new List<string>();
 
-            foreach (var x in Loader.actionsDictionary)
+            foreach (var x in Loader.actionsDictionary ?? new Dictionary<string, Loader.Root>())
             {
                 if (!alreadyInserted.Contains(x.Key))
                 {
                     root.Add(x.Key);
                     alreadyInserted.Add(x.Key);
-                    foreach (var y in x.Value.AdditionalNames)
+                    if (x.Value?.AdditionalNames != null)
                     {
-                        if (!alreadyInserted.Contains(y))
+                        foreach (var y in x.Value.AdditionalNames)
                         {
-                            //a.AddNode(y);
-                            alreadyInserted.Add(y);
+                            if (!alreadyInserted.Contains(y))
+                            {
+                                alreadyInserted.Add(y);
+                            }
                         }
                     }
                 }
@@ -63,18 +65,21 @@ namespace cmd_shrtcts
 
             var root = new Tree("Root");
 
-            foreach (var x in Loader.actionsDictionary)
+            foreach (var x in Loader.actionsDictionary ?? new Dictionary<string, Loader.Root>())
             {
                 if (!alreadyInserted.Contains(x.Key))
                 {
                     var a = root.AddNode(x.Key);
                     alreadyInserted.Add(x.Key);
-                    foreach (var y in x.Value.AdditionalNames)
+                    if (x.Value?.AdditionalNames != null)
                     {
-                        if (!alreadyInserted.Contains(y))
+                        foreach (var y in x.Value.AdditionalNames)
                         {
-                            a.AddNode(y);
-                            alreadyInserted.Add(y);
+                            if (!alreadyInserted.Contains(y))
+                            {
+                                a.AddNode(y);
+                                alreadyInserted.Add(y);
+                            }
                         }
                     }
                 }
@@ -272,7 +277,7 @@ namespace cmd_shrtcts
 
 
         /// <summary>
-        /// Opens a Command Prompt and Keeps it open
+        /// Opens a Command Prompt and closes after specified timeout
         /// </summary>
         /// <param name="cmd"></param>
         public static void OpenCMD(string cmd)
@@ -280,7 +285,8 @@ namespace cmd_shrtcts
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             process.StartInfo.FileName = "cmd.exe";
             process.StartInfo.UseShellExecute = true;
-            process.StartInfo.Arguments = $"/K {cmd}";
+            // Use /C to run command and close, then add a pause for the specified timeout
+            process.StartInfo.Arguments = $"/C {cmd} & timeout /t {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}";
             process.Start();
         }
 
@@ -339,8 +345,42 @@ namespace cmd_shrtcts
             {
                 Loader.LogText(ex.ToString());
             }
+        }
 
+        public static void DisplayRandomQuote()
+        {
+            try
+            {
+                string quotesFilePath = Loader.ChangeFromLocalToDirectoryPath(@".\Data\Quotes\movie-quotes.txt");
 
+                if (!File.Exists(quotesFilePath))
+                {
+                    Loader.LogText($"Quotes file not found: {quotesFilePath}");
+                    return;
+                }
+
+                // Read all quotes from the file
+                string[] allQuotes = File.ReadAllLines(quotesFilePath);
+
+                if (allQuotes.Length == 0)
+                {
+                    Loader.LogText("No quotes found in the quotes file");
+                    return;
+                }
+
+                // Pick a random quote
+                Random random = new Random();
+                int randomIndex = random.Next(allQuotes.Length);
+                string quote = allQuotes[randomIndex].Trim();
+
+                // Display the quote with styling
+                AnsiConsole.MarkupLine($"[bold yellow] {quote} [/]");
+                Loader.LogText($"Displayed quote: {quote}");
+            }
+            catch (Exception ex)
+            {
+                Loader.LogText($"Error displaying quote: {ex.Message}");
+            }
         }
 
 

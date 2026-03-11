@@ -24,7 +24,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
     <PackageReference Include="System.Windows.Extensions" Version="7.0.0" />
-    <PackageReference Include="TextCopy" Version="4.3.2" />
+    <PackageReference Include="TextCopy" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +47,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Data\Sounds\chord.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Quotes\movie-quotes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

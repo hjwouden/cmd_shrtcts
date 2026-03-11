@@ -19,6 +19,7 @@ namespace cmd_shrtcts
         public static string ERROR_SOUND_FILE_PATH = @".\Data\Sounds\chord.wav";
         public static string CHROME_BROWSER_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
         public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
+        public static int COMMAND_WINDOW_TIMEOUT_SECONDS = 5; // How long the command window stays open (in seconds)
         public static string[] INPUT_CONFIG_LOCATIONS =
             {
                 @".\Data\Configs\system-config.json"
@@ -125,6 +126,12 @@ namespace cmd_shrtcts
                     {
                         foreach (Root a in config)
                         {
+                            if (a.AdditionalNames == null || a.AdditionalNames.Count == 0)
+                            {
+                                LogText("Skipping config entry with no additional names");
+                                continue;
+                            }
+
                             foreach (string b in a.AdditionalNames)
                             {
                                 if (TryGetActionDelegate(a.action, out Action<object> action))

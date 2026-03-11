@@ -65,7 +65,7 @@ namespace cmd_shrtcts
             // Normalize input to lowercase for case-insensitive lookup
             string normalizedValue = value.ToLowerInvariant();
 
-            if (Loader.actionsDictionary1.TryGetValue(normalizedValue, out Action<object> action))
+            if (Loader.actionsDictionary1?.TryGetValue(normalizedValue, out Action<object> action) == true)
             {
                 if (!Loader.TryGetParameterFromJson(normalizedValue, out object parameter) || parameter == "prompt")
                 {
@@ -76,6 +76,7 @@ namespace cmd_shrtcts
                 // Invoke desired Action
                 action.Invoke(parameter);
                 Actions.PlaySound("success");
+                Actions.DisplayRandomQuote();
             }
             else
             {
