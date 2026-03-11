@@ -62,15 +62,16 @@ namespace cmd_shrtcts
         {
             Loader.LogText($"Processing Entered Parameter: {value}");
 
+            // Normalize input to lowercase for case-insensitive lookup
+            string normalizedValue = value.ToLowerInvariant();
 
-            if (Loader.actionsDictionary1.TryGetValue(value, out Action<object> action))
+            if (Loader.actionsDictionary1.TryGetValue(normalizedValue, out Action<object> action))
             {
-                if (!Loader.TryGetParameterFromJson(value, out object parameter) || parameter == "prompt")
+                if (!Loader.TryGetParameterFromJson(normalizedValue, out object parameter) || parameter == "prompt")
                 {
                     Loader.LogText("Enter a parameter:");
                     parameter = Console.ReadLine();
                 }
-
 
                 // Invoke desired Action
                 action.Invoke(parameter);

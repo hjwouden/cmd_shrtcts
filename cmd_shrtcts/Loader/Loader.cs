@@ -129,8 +129,10 @@ namespace cmd_shrtcts
                             {
                                 if (TryGetActionDelegate(a.action, out Action<object> action))
                                 {
-                                    actionsDictionary1[b] = action;
-                                    actions[b] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter };
+                                    // Store keys in lowercase for case-insensitive lookup
+                                    string lowerKey = b.ToLowerInvariant();
+                                    actionsDictionary1[lowerKey] = action;
+                                    actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter };
                                 }
                                 else
                                 {

@@ -17,7 +17,9 @@ namespace cmd_shrtcts
                 // Check for provided action in list
                 if (args.Length > 0)
                 {
-                    startApp.ProcessParameter(args[0]);
+                    // Join all arguments with spaces to support multi-word commands
+                    string fullCommand = string.Join(" ", args);
+                    startApp.ProcessParameter(fullCommand);
                 }
                 else
                 {
