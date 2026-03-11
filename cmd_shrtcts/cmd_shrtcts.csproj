@@ -24,6 +24,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
     <PackageReference Include="System.Windows.Extensions" Version="7.0.0" />
+    <PackageReference Include="TextCopy" Version="4.3.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Media;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static cmd_shrtcts.Loader;
 using static System.Net.Mime.MediaTypeNames;
@@ -101,12 +102,36 @@ namespace cmd_shrtcts
 
         public static void TextToClipboard(string pathToTextFile)
         {
-            //string text = File.ReadAllText(pathToTextFile);
-            //Thread thread = new Thread(() => Clipboard.SetText(text));
-            //thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
-            //thread.Start();
-            //thread.Join();
+            try
+            {
+                // Check if the file exists
+                if (!File.Exists(pathToTextFile))
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: File not found:[/] {pathToTextFile}");
+                    Loader.LogText($"TextToClipboard: File not found - {pathToTextFile}");
+                    return;
+                }
 
+                // Read the file content
+                string text = File.ReadAllText(pathToTextFile);
+
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    AnsiConsole.MarkupLine("[yellow]Warning: File is empty.[/]/]");
+                    return;
+                }
+
+                // Use TextCopy to copy to clipboard (works cross-platform)
+                TextCopy.ClipboardService.SetText(text);
+
+                AnsiConsole.MarkupLine($"[green]Text copied to clipboard from:[/] {pathToTextFile}");
+                Loader.LogText($"TextToClipboard: Successfully copied text to clipboard from {pathToTextFile}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error:[/] {ex.Message}");
+                Loader.LogText($"TextToClipboard: {ex}");
+            }
         }
 
         public static void OpenFile(string filePath)
@@ -168,7 +193,7 @@ namespace cmd_shrtcts
                     .MoreChoicesText("Move up and down to reveal more choices")
                     .AddChoices(new[]
                     {
-                        "OpenWebPage", "OpenCMD", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams"
+                        "OpenWebPage", "OpenCMD", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "AddNote"
                     })
             );
 
@@ -188,6 +213,11 @@ namespace cmd_shrtcts
                 case "PutTextOnClipboard":
                     Console.WriteLine("Enter full path to text file:");
                     parameter = Console.ReadLine();
+                    break;
+
+                case "AddNote":
+                    Console.WriteLine("This action doesn't require a parameter.");
+                    parameter = "";
                     break;
 
                 case "OpenFile":
