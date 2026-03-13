@@ -207,6 +207,12 @@ namespace cmd_shrtcts
                 case "ConfigureNote":
                     action = (parameter) => Actions.ConfigureNote(parameter.ToString());
                     return true;
+                case "OpenCMDAtLocation":
+                    action = (parameter) => Actions.OpenCMDAtLocation(parameter.ToString());
+                    return true;
+                case "OpenCMDPersistent":
+                    action = (parameter) => Actions.OpenCMDPersistent(parameter.ToString());
+                    return true;
                 default:
                     action = null;
                     return false;

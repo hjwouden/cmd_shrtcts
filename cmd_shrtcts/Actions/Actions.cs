@@ -198,7 +198,7 @@ namespace cmd_shrtcts
                     .MoreChoicesText("Move up and down to reveal more choices")
                     .AddChoices(new[]
                     {
-                        "OpenWebPage", "OpenCMD", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "AddNote"
+                        "OpenWebPage", "OpenCMD", "OpenCMDPersistent", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation", "AddNote"
                     })
             );
 
@@ -212,6 +212,11 @@ namespace cmd_shrtcts
 
                 case "OpenCMD":
                     Console.WriteLine("Enter the command (e.g., dir, cc menu, etc):");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenCMDPersistent":
+                    Console.WriteLine("Enter the command to run (e.g., python file.py, node app.js, etc):");
                     parameter = Console.ReadLine();
                     break;
 
@@ -236,6 +241,11 @@ namespace cmd_shrtcts
                     Console.WriteLine("Enter the parameter/password:");
                     var param = Console.ReadLine();
                     parameter = $"{cmd},{param}";
+                    break;
+
+                case "OpenCMDAtLocation":
+                    Console.WriteLine("Enter the directory path:");
+                    parameter = Console.ReadLine();
                     break;
 
                 default:
@@ -317,6 +327,54 @@ namespace cmd_shrtcts
 
             cmdProcess.WaitForExit();
             cmdProcess.Close();
+        }
+
+        public static void OpenCMDAtLocation(string directoryPath)
+        {
+            try
+            {
+                // Verify the directory exists
+                if (!Directory.Exists(directoryPath))
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: Directory not found:[/] {directoryPath}");
+                    Loader.LogText($"OpenCMDAtLocation: Directory not found - {directoryPath}");
+                    return;
+                }
+
+                // Open a persistent command prompt at the specified location
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.WorkingDirectory = directoryPath;
+                process.Start();
+
+                Loader.LogText($"OpenCMDAtLocation: Opened command prompt at {directoryPath}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error opening command prompt:[/] {ex.Message}");
+                Loader.LogText($"OpenCMDAtLocation: {ex}");
+            }
+        }
+
+        public static void OpenCMDPersistent(string cmd)
+        {
+            try
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.UseShellExecute = true;
+                // Use /K to run command and keep window open (instead of /C which closes)
+                process.StartInfo.Arguments = $"/K {cmd}";
+                process.Start();
+
+                Loader.LogText($"OpenCMDPersistent: Opened persistent command prompt with: {cmd}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error opening command prompt:[/] {ex.Message}");
+                Loader.LogText($"OpenCMDPersistent: {ex}");
+            }
         }
 
         public static void PlaySound(string kind)
