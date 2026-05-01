@@ -14,25 +14,29 @@ set "buildConfig=%~1"
 if "%buildConfig%"=="" set "buildConfig=Release"
 
 REM Set the paths and filenames
-set "sourceFile=C:\DEV\github\cmd_shrtcts\cmd_shrtcts\bin\Release\net9.0\Data\AppSettings\appsettings.prod.json"
-set "destinationDirectory=C:\DEV\github\cmd_shrtcts\cmd_shrtcts\bin\Release\net9.0"
-set "fileToDelete=C:\DEV\github\cmd_shrtcts\cmd_shrtcts\bin\Release\net9.0\appsettings.json"
-set "fileToRename=C:\DEV\github\cmd_shrtcts\cmd_shrtcts\bin\Release\net9.0\appsettings.prod.json"
+set "scriptDir=%~dp0"
+set "projectDir=!scriptDir!.."
+set "binDir=!projectDir!\bin\!buildConfig!\net9.0"
+
+set "sourceFile=!binDir!\Data\AppSettings\appsettings.prod.json"
+set "destinationDirectory=!binDir!"
+set "fileToDelete=!binDir!\appsettings.json"
+set "fileToRename=!binDir!\appsettings.prod.json"
 set "newFileName=appsettings.json"
 
 REM Task 1: Move a file to a new directory
-echo Copying "%sourceFile%" to "%destinationDirectory%"
-copy "%sourceFile%" "%destinationDirectory%"
+echo Copying "!sourceFile!" to "!destinationDirectory!"
+copy "!sourceFile!" "!destinationDirectory!"
 
 REM Task 2: Delete a file
-echo Deleting "%fileToDelete%"
-del "%fileToDelete%"
+echo Deleting "!fileToDelete!"
+del "!fileToDelete!"
 
 REM Task 3: Rename a file
-echo Renaming "%fileToRename%" to "%newFileName%"
-ren "%fileToRename%" "%newFileName%"
+echo Renaming "!fileToRename!" to "!newFileName!"
+ren "!fileToRename!" "!newFileName!"
 
-REM Task 4: Pack and update the .NET tool so `cc` points to the latest build
+REM Task 4: Pack and update the .NET tool so `sc` points to the latest build
 REM IMPORTANT: Only do this for Release builds to avoid Visual Studio build loops.
 if /I not "%buildConfig%"=="Release" (
   echo Tool pack/update skipped for configuration: %buildConfig%
@@ -41,9 +45,8 @@ if /I not "%buildConfig%"=="Release" (
   exit /b 0
 )
 
-set "projectDir=C:\DEV\github\cmd_shrtcts\cmd_shrtcts"
-set "packageSource=%projectDir%\bin\Release"
-set "counterFile=%projectDir%\.toolversion.counter"
+set "packageSource=!projectDir!\bin\Release"
+set "counterFile=!projectDir!\.toolversion.counter"
 
 REM Read + increment a persistent counter (so each pack has a unique version)
 set "counter=0"

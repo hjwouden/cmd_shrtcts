@@ -2,7 +2,7 @@
   {
     "AdditionalNames": [ "help" ],
     "action": "OpenCMD",
-    "parameter": "cc list"
+    "parameter": "sc list"
   },
   {
     "AdditionalNames": [ "list" ],

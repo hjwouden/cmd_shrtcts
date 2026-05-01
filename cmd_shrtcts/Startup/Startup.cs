@@ -87,12 +87,13 @@ namespace cmd_shrtcts
 
         internal void SetSystemVariables()
         {
-            Loader.ASSEMBLY_LOCATION = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            Loader.ASSEMBLY_LOCATION = Loader.ChangeFromLocalToDirectoryPath(@"..\");
-            Loader.OUTPUT_LOG_FILE_PATH = Loader.ChangeFromLocalToDirectoryPath(@".\log.txt");
+            var dllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            Loader.ASSEMBLY_LOCATION = Path.GetDirectoryName(dllPath) ?? AppContext.BaseDirectory;
             
-            var successSoundPath = Loader.ChangeFromLocalToDirectoryPath(Loader.SUCCESS_SOUND_FILE_PATH);
-            var errorSoundPath = Loader.ChangeFromLocalToDirectoryPath(Loader.ERROR_SOUND_FILE_PATH);
+            Loader.OUTPUT_LOG_FILE_PATH = Path.Combine(Loader.ASSEMBLY_LOCATION, "log.txt");
+            
+            var successSoundPath = Path.Combine(Loader.ASSEMBLY_LOCATION, Loader.SUCCESS_SOUND_FILE_PATH);
+            var errorSoundPath = Path.Combine(Loader.ASSEMBLY_LOCATION, Loader.ERROR_SOUND_FILE_PATH);
             
             Loader.SUCCESS_SOUND_FILE_PATH = File.Exists(successSoundPath) ? successSoundPath : null;
             Loader.ERROR_SOUND_FILE_PATH = File.Exists(errorSoundPath) ? errorSoundPath : null;

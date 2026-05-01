@@ -72,9 +72,8 @@ public static partial class Actions
 
         var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, selection);
 
-        if (string.Equals(Path.GetFileName(selection), "system-config.json", StringComparison.OrdinalIgnoreCase) ||
-            selection.EndsWith("Data\\Configs\\system-config.json", StringComparison.OrdinalIgnoreCase) ||
-            selection.EndsWith("Data/Configs/system-config.json", StringComparison.OrdinalIgnoreCase))
+        var fileName = Path.GetFileName(selection);
+        if (string.Equals(fileName, "system-config.json", StringComparison.OrdinalIgnoreCase))
         {
             AnsiConsole.MarkupLine("[red]Refusing to edit system-config.json.[/]");
             return;

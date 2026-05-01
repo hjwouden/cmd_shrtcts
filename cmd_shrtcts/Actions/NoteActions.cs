@@ -159,7 +159,7 @@ public static partial class Actions
         }
         else
         {
-            notesPath = AnsiConsole.Ask<string>("Enter full path to notes file (e.g., C:\\path\\to\\notes.md):");
+            notesPath = AnsiConsole.Ask<string>("Enter full path to notes file:");
         }
 
         // Ensure it has .md extension
@@ -188,7 +188,7 @@ public static partial class Actions
         }
         else
         {
-            notesPath = AnsiConsole.Ask<string>("Enter full path to notes file (e.g., C:\\path\\to\\notes.md):");
+            notesPath = AnsiConsole.Ask<string>("Enter full path to notes file:");
         }
 
         // Ensure it has .md extension
