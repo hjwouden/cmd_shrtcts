@@ -7,7 +7,7 @@
     <Nullable>warnings</Nullable>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>cc</ToolCommandName>
+    <ToolCommandName>sc</ToolCommandName>
 
     <PackageId>cmd_shrtcts</PackageId>
     <Version>1.0.0</Version>
@@ -54,8 +54,8 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(IsPacking)' != 'true'">
-    <Exec Command="call &quot;C:\DEV\github\cmd_shrtcts\cmd_shrtcts\Properties\post-build.bat&quot; $(Configuration)" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(IsPacking)' != 'true' AND '$(OS)' == 'Windows_NT'">
+    <Exec Command="call &quot;$(ProjectDir)Properties\post-build.bat&quot; $(Configuration)" />
   </Target>
 
 </Project>

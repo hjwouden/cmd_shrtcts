@@ -15,14 +15,16 @@ namespace cmd_shrtcts
         //CONFIGURATION VALUES
         public static string ASSEMBLY_LOCATION = "";
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        public static string SUCCESS_SOUND_FILE_PATH = @".\Data\Sounds\chime.wav";
-        public static string ERROR_SOUND_FILE_PATH = @".\Data\Sounds\chord.wav";
-        public static string CHROME_BROWSER_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-        public static string OUTPUT_LOG_FILE_PATH = @".\log.txt";
+        public static string SUCCESS_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chime.wav");
+        public static string ERROR_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chord.wav");
+        public static string CHROME_BROWSER_PATH = OperatingSystem.IsWindows() 
+            ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 
+            : "google-chrome"; // Fallback for Linux/Mac, though 'open' is preferred on Mac
+        public static string OUTPUT_LOG_FILE_PATH = "log.txt";
         public static int COMMAND_WINDOW_TIMEOUT_SECONDS = 5; // How long the command window stays open (in seconds)
         public static string[] INPUT_CONFIG_LOCATIONS =
             {
-                @".\Data\Configs\system-config.json"
+                Path.Combine("Data", "Configs", "system-config.json")
             };
 
         public static string GetUserDataDirectory()
@@ -59,7 +61,14 @@ namespace cmd_shrtcts
             }
             else
             {
-                File.WriteAllText(userSettings, "{\"ApplicationVars\":{\"InputConfigs\":[\".\\\\Data\\\\Configs\\\\system-config.json\"]}}" + Environment.NewLine);
+                var defaultConfig = new
+                {
+                    ApplicationVars = new
+                    {
+                        InputConfigs = new[] { Path.Combine("Data", "Configs", "system-config.json") }
+                    }
+                };
+                File.WriteAllText(userSettings, JsonConvert.SerializeObject(defaultConfig, Formatting.Indented) + Environment.NewLine);
             }
         }
 
@@ -90,8 +99,9 @@ namespace cmd_shrtcts
 
         public static string ChangeFromLocalToDirectoryPath(string fileName)
         {
-            string newPath = new DirectoryInfo(Path.Combine(Loader.ASSEMBLY_LOCATION, fileName)).FullName;
-            return newPath;
+            // Normalize path separators if they are hardcoded as \
+            string normalizedFileName = fileName.Replace('\\', Path.DirectorySeparatorChar);
+            return Path.Combine(Loader.ASSEMBLY_LOCATION, normalizedFileName);
         }
 
         public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)

@@ -17,13 +17,24 @@ namespace cmd_shrtcts
     {
         public static void OpenWebPage(string path)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = Loader.CHROME_BROWSER_PATH;
-            startInfo.Arguments = $@"--new-window {path} ";
-            process.StartInfo = startInfo;
-            process.Start();
+            if (OperatingSystem.IsWindows())
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = Loader.CHROME_BROWSER_PATH;
+                startInfo.Arguments = $@"--new-window {path} ";
+                process.StartInfo = startInfo;
+                process.Start();
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                Process.Start("open", path);
+            }
+            else // Linux
+            {
+                Process.Start("xdg-open", path);
+            }
         }
 
 
@@ -100,7 +111,7 @@ namespace cmd_shrtcts
 
             LogText("Menu Selection: " +  selection);
 
-            OpenCMD("cc " + selection);
+            OpenCMD("sc " + selection);
 
 
         }
@@ -297,19 +308,34 @@ namespace cmd_shrtcts
         /// <param name="cmd"></param>
         public static void OpenCMD(string cmd)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.UseShellExecute = true;
-            // Use /C to run command and close, then add a pause for the specified timeout
-            process.StartInfo.Arguments = $"/C {cmd} & timeout /t {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}";
-            process.Start();
+            if (OperatingSystem.IsWindows())
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.UseShellExecute = true;
+                // Use /C to run command and close, then add a pause for the specified timeout
+                process.StartInfo.Arguments = $"/C {cmd} & timeout /t {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}";
+                process.Start();
+            }
+            else
+            {
+                // For Mac and Linux, use the default shell
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/sh",
+                    Arguments = $"-c \"{cmd}; sleep {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}\"",
+                    UseShellExecute = false
+                };
+                Process.Start(startInfo);
+            }
         }
 
         public static void OpenCMDWithParams(string cmd, string param)
         {
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = "cmd.exe",
+                FileName = OperatingSystem.IsWindows() ? "cmd.exe" : "/bin/sh",
+                Arguments = OperatingSystem.IsWindows() ? "" : $"-c \"{cmd}\"",
                 RedirectStandardInput = true,
                 UseShellExecute = false
             };
@@ -321,12 +347,13 @@ namespace cmd_shrtcts
 
             cmdProcess.Start();
 
-            // Write the command to the standard input stream
-            cmdProcess.StandardInput.WriteLine(cmd);
+            if (OperatingSystem.IsWindows())
+            {
+                // Write the command to the standard input stream
+                cmdProcess.StandardInput.WriteLine(cmd);
+            }
 
-
-
-            // Write the password to the standard input stream
+            // Write the password/param to the standard input stream
             cmdProcess.StandardInput.WriteLine(param);
             cmdProcess.StandardInput.Flush();
 
@@ -435,10 +462,16 @@ namespace cmd_shrtcts
 
             try
             {
-                SoundPlayer player = new SoundPlayer(filePath);
-
-                // Play the sound
-                player.Play();
+                if (OperatingSystem.IsWindows())
+                {
+                    SoundPlayer player = new SoundPlayer(filePath);
+                    player.Play();
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    Process.Start("afplay", filePath);
+                }
+                
                 TimeSpan waitTime = TimeSpan.FromSeconds(2);
                 Thread.Sleep(waitTime);
             }
