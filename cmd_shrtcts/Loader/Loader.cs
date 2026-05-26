@@ -213,6 +213,9 @@ namespace cmd_shrtcts
                 case "OpenCMDPersistent":
                     action = (parameter) => Actions.OpenCMDPersistent(parameter.ToString());
                     return true;
+                case "QuickNote":
+                    action = (parameter) => Actions.QuickNote(parameter.ToString());
+                    return true;
                 default:
                     action = null;
                     return false;

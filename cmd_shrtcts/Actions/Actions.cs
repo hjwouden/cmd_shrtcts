@@ -198,7 +198,7 @@ namespace cmd_shrtcts
                     .MoreChoicesText("Move up and down to reveal more choices")
                     .AddChoices(new[]
                     {
-                        "OpenWebPage", "OpenCMD", "OpenCMDPersistent", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation", "AddNote"
+                        "OpenWebPage", "OpenCMD", "OpenCMDPersistent", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation", "QuickNote", "AddNote"
                     })
             );
 
@@ -245,6 +245,11 @@ namespace cmd_shrtcts
 
                 case "OpenCMDAtLocation":
                     Console.WriteLine("Enter the directory path:");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "QuickNote":
+                    Console.WriteLine("Enter the folder path where notes will be saved:");
                     parameter = Console.ReadLine();
                     break;
 
@@ -374,6 +379,44 @@ namespace cmd_shrtcts
             {
                 AnsiConsole.MarkupLine($"[red]Error opening command prompt:[/] {ex.Message}");
                 Loader.LogText($"OpenCMDPersistent: {ex}");
+            }
+        }
+
+        public static void QuickNote(string folderPath)
+        {
+            try
+            {
+                // Ensure the folder exists
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                    Loader.LogText($"QuickNote: Created directory {folderPath}");
+                }
+
+                // Create filename with date and time for unique files
+                string fileName = $"quickNote-{DateTime.Now:yyyy-MM-dd-HHmmss}.md";
+                string filePath = Path.Combine(folderPath, fileName);
+
+                // Create the file with a header
+                string header = $"# Quick Notes - {DateTime.Now:MMMM dd, yyyy h:mm tt}\n\n";
+                File.WriteAllText(filePath, header);
+                Loader.LogText($"QuickNote: Created new file {filePath}");
+
+                // Open the file in Notepad
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = "notepad.exe",
+                    Arguments = filePath,
+                    UseShellExecute = true
+                };
+                Process.Start(startInfo);
+
+                AnsiConsole.MarkupLine($"[green]Opened quick note:[/] {filePath}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error creating quick note:[/] {ex.Message}");
+                Loader.LogText($"QuickNote: {ex}");
             }
         }
 
