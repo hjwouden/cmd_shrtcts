@@ -111,7 +111,9 @@ namespace cmd_shrtcts
 
             LogText("Menu Selection: " +  selection);
 
-            OpenCMD("sc " + selection);
+            // Use 'sc' on macOS, 'cc' on Windows (matches ToolCommandName in csproj)
+            var toolCommand = OperatingSystem.IsMacOS() ? "sc" : "cc";
+            OpenCMD(toolCommand + " " + selection);
 
 
         }

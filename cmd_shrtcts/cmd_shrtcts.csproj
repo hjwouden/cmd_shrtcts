@@ -7,7 +7,9 @@
     <Nullable>warnings</Nullable>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>sc</ToolCommandName>
+    <!-- Use 'cc' on Windows, 'sc' on macOS (cc conflicts with C compiler on Mac, sc conflicts with Service Control on Windows) -->
+    <ToolCommandName Condition="$([MSBuild]::IsOSPlatform('OSX'))">sc</ToolCommandName>
+    <ToolCommandName Condition="!$([MSBuild]::IsOSPlatform('OSX'))">cc</ToolCommandName>
 
     <PackageId>cmd_shrtcts</PackageId>
     <Version>1.0.0</Version>
