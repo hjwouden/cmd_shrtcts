@@ -375,12 +375,34 @@ namespace cmd_shrtcts
                     return;
                 }
 
-                // Open a persistent command prompt at the specified location
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.UseShellExecute = true;
-                process.StartInfo.WorkingDirectory = directoryPath;
-                process.Start();
+                if (OperatingSystem.IsWindows())
+                {
+                    // Use start command to open cmd in a new window without intermediate window
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = $"/C start cmd.exe /K cd /d \"{directoryPath}\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+                    Process.Start(startInfo);
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    // Open Terminal.app at the specified directory
+                    Process.Start("open", $"-a Terminal \"{directoryPath}\"");
+                }
+                else // Linux
+                {
+                    // Try common terminal emulators
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = "x-terminal-emulator",
+                        Arguments = $"--working-directory=\"{directoryPath}\"",
+                        UseShellExecute = false
+                    };
+                    Process.Start(startInfo);
+                }
 
                 Loader.LogText($"OpenCMDAtLocation: Opened command prompt at {directoryPath}");
             }
