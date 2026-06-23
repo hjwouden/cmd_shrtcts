@@ -110,6 +110,15 @@ namespace cmd_shrtcts
                 action.Invoke(parameter);
                 Actions.PlaySound("success");
                 Actions.DisplayRandomQuote();
+
+                // Show countdown and close the terminal window when running interactively.
+                // Skip for "system" category actions (config wizards, menus) — those are
+                // run from the user's own terminal, not a launcher-opened one.
+                bool isSystemAction = Loader.actionsDictionary?.TryGetValue(normalizedValue, out var root) == true
+                    && string.Equals(root?.category, "system", StringComparison.OrdinalIgnoreCase);
+
+                if (!Console.IsOutputRedirected && !isSystemAction)
+                    Actions.ShowLauncherCountdownAndClose();
             }
             else
             {

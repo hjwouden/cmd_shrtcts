@@ -349,20 +349,50 @@ namespace cmd_shrtcts
                 System.Diagnostics.Process process = new System.Diagnostics.Process();
                 process.StartInfo.FileName = "cmd.exe";
                 process.StartInfo.UseShellExecute = true;
-                // Use /C to run command and close, then add a pause for the specified timeout
-                process.StartInfo.Arguments = $"/C {cmd} & timeout /t {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}";
+                // /C runs and exits; /NOBREAK makes timeout work even when stdin is redirected
+                process.StartInfo.Arguments = $"/C {cmd} & timeout /t {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS} /NOBREAK";
                 process.Start();
             }
-            else
+            else if (OperatingSystem.IsMacOS())
             {
-                // For Mac and Linux, use the default shell
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                // Write a temp script that runs the command then shows a countdown
+                var tempScript = Path.Combine(Path.GetTempPath(), $"sc_cmd_{Guid.NewGuid():N}.sh");
+                var countdown = Loader.COMMAND_WINDOW_TIMEOUT_SECONDS;
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("#!/bin/sh");
+                sb.AppendLine(cmd);
+                sb.AppendLine("echo ''");
+                sb.AppendLine($"i={countdown}");
+                sb.AppendLine("while [ $i -gt 0 ]; do");
+                sb.AppendLine("  printf \"\\rClosing in %d...  \" $i");
+                sb.AppendLine("  sleep 1");
+                sb.AppendLine("  i=$((i - 1))");
+                sb.AppendLine("done");
+                sb.AppendLine("echo ''");
+                File.WriteAllText(tempScript, sb.ToString());
+                File.SetUnixFileMode(tempScript,
+                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+
+                // Open in Terminal.app; close the window after countdown + 1s buffer via osascript
+                var psi = new ProcessStartInfo("osascript") { UseShellExecute = false, CreateNoWindow = true };
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("tell application \"Terminal\"");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add($"set newTab to do script \"{tempScript}\"");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("activate");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add($"delay {countdown + 1}");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("try");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("close window of newTab");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("end try");
+                psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("end tell");
+                Process.Start(psi);
+            }
+            else // Linux
+            {
+                Process.Start(new ProcessStartInfo("/bin/sh")
                 {
-                    FileName = "/bin/sh",
                     Arguments = $"-c \"{cmd}; sleep {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}\"",
                     UseShellExecute = false
-                };
-                Process.Start(startInfo);
+                });
             }
         }
 
@@ -523,15 +553,12 @@ namespace cmd_shrtcts
                 if (OperatingSystem.IsWindows())
                 {
                     SoundPlayer player = new SoundPlayer(filePath);
-                    player.Play();
+                    player.PlaySync(); // blocks until the sound finishes, no extra sleep needed
                 }
                 else if (OperatingSystem.IsMacOS())
                 {
-                    Process.Start("afplay", filePath);
+                    Process.Start("afplay", filePath)?.WaitForExit(); // blocks until afplay finishes
                 }
-                
-                TimeSpan waitTime = TimeSpan.FromSeconds(2);
-                Thread.Sleep(waitTime);
             }
             catch (Exception ex)
             {
@@ -573,6 +600,35 @@ namespace cmd_shrtcts
             {
                 Loader.LogText($"Error displaying quote: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Shows a countdown in the terminal and then closes it. Called after a shortcut
+        /// action completes when cc/sc is running in an interactive (non-redirected) terminal
+        /// — i.e. the terminal was opened by the launcher (Raycast, PowerToys) to run this command.
+        /// </summary>
+        public static void ShowLauncherCountdownAndClose()
+        {
+            for (int i = Loader.COMMAND_WINDOW_TIMEOUT_SECONDS; i > 0; i--)
+            {
+                Console.Write($"\rClosing in {i}...  ");
+                Thread.Sleep(1000);
+            }
+            Console.WriteLine();
+
+            if (OperatingSystem.IsMacOS())
+            {
+                // Close the Terminal.app window this process ran in.
+                // Uses the front-window heuristic: since the launcher opened a dedicated
+                // terminal for this shortcut and activated it, it should be the front window.
+                var psi = new ProcessStartInfo("osascript") { UseShellExecute = false, CreateNoWindow = true };
+                psi.ArgumentList.Add("-e");
+                psi.ArgumentList.Add("tell application \"Terminal\" to close front window");
+                Process.Start(psi);
+            }
+            // Windows: the cmd.exe window that PowerToys Run opened with /C will close
+            // automatically when cc.exe exits. If it uses /K, the user needs to change that
+            // in their PowerToys Run shell settings.
         }
 
 
