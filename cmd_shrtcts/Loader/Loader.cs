@@ -81,6 +81,8 @@ namespace cmd_shrtcts
             public List<string>? AdditionalNames { get; set; }
             public string? action { get; set; }
             public string? parameter { get; set; }
+            public string? category { get; set; }
+            public string? description { get; set; }
         }
 
         public static bool TryGetParameterFromJson(string value, out object parameter)
@@ -149,7 +151,7 @@ namespace cmd_shrtcts
                                     // Store keys in lowercase for case-insensitive lookup
                                     string lowerKey = b.ToLowerInvariant();
                                     actionsDictionary1[lowerKey] = action;
-                                    actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter };
+                                    actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter, category = a.category, description = a.description };
                                 }
                                 else
                                 {
@@ -231,6 +233,9 @@ namespace cmd_shrtcts
                     return true;
                 case "ConfigureErrorSound":
                     action = (parameter) => Actions.ConfigureErrorSound(parameter.ToString());
+                    return true;
+                case "EditConfig":
+                    action = (parameter) => Actions.EditConfig(parameter.ToString());
                     return true;
                 default:
                     action = null;

@@ -59,6 +59,7 @@
         [InlineData("AddToConfig")]
         [InlineData("ConfigureSuccessSound")]
         [InlineData("ConfigureErrorSound")]
+        [InlineData("EditConfig")]
         public void AllConfigActions_HaveDelegates_Defined(string actionName)
         {
             // Arrange & Act
@@ -120,6 +121,7 @@
         [InlineData("ConfigureNote")]
         [InlineData("ConfigureSuccessSound")]
         [InlineData("ConfigureErrorSound")]
+        [InlineData("EditConfig")]
         public void AllRegisteredActions_HaveDelegates(string actionName)
         {
             // Act

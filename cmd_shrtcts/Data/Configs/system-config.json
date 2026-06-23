@@ -2,49 +2,20 @@
   {
     "AdditionalNames": [ "help" ],
     "action": "OpenCMD",
-    "parameter": "sc list"
+    "parameter": "sc list",
+    "description": "Print all available shortcuts to the console"
   },
   {
     "AdditionalNames": [ "list" ],
     "action": "list",
-    "parameter": ""
+    "parameter": "",
+    "description": "Show all loaded shortcuts as a tree"
   },
   {
     "AdditionalNames": [ "menu" ],
     "action": "Menu",
-    "parameter": ""
-  },
-  {
-    "AdditionalNames": [ "add", "new" ],
-    "action": "AddToConfig",
-    "parameter": ""
-  },
-  {
-    "AdditionalNames": [
-      "setconfig",
-      "set-config",
-      "SetConfigPath"
-    ],
-    "action": "SetConfigPath",
-    "parameter": "prompt"
-  },
-  {
-    "AdditionalNames": [
-      "remove",
-      "delete",
-      "RemoveFromConfig"
-    ],
-    "action": "RemoveFromConfig",
-    "parameter": ""
-  },
-  {
-    "AdditionalNames": [
-      "removeconfig",
-      "remove-config",
-      "RemoveConfigPath"
-    ],
-    "action": "RemoveConfigPath",
-    "parameter": ""
+    "parameter": "",
+    "description": "Browse and run shortcuts interactively"
   },
   {
     "AdditionalNames": [
@@ -53,7 +24,55 @@
       "AddNote"
     ],
     "action": "AddNote",
-    "parameter": ""
+    "parameter": "",
+    "description": "sn (StickyNote) — quickly appends text as a todo item to your preconfigured notes file"
+  },
+  {
+    "AdditionalNames": [ "edit", "EditConfig" ],
+    "action": "EditConfig",
+    "parameter": "",
+    "category": "system",
+    "description": "Edit an existing shortcut entry in a config file"
+  },
+  {
+    "AdditionalNames": [ "add", "new" ],
+    "action": "AddToConfig",
+    "parameter": "",
+    "category": "system",
+    "description": "Add a new shortcut to a config file"
+  },
+  {
+    "AdditionalNames": [
+      "setconfig",
+      "set-config",
+      "SetConfigPath"
+    ],
+    "action": "SetConfigPath",
+    "parameter": "prompt",
+    "category": "system",
+    "description": "Register an additional config file to load shortcuts from"
+  },
+  {
+    "AdditionalNames": [
+      "remove",
+      "delete",
+      "RemoveFromConfig"
+    ],
+    "action": "RemoveFromConfig",
+    "parameter": "",
+    "category": "system",
+    "description": "Delete a shortcut entry from a config file"
+  },
+  {
+    "AdditionalNames": [
+      "removeconfig",
+      "remove-config",
+      "RemoveConfigPath"
+    ],
+    "action": "RemoveConfigPath",
+    "parameter": "",
+    "category": "system",
+    "description": "Unregister a config file path from settings"
   },
   {
     "AdditionalNames": [
@@ -63,7 +82,9 @@
       "ConfigureNote"
     ],
     "action": "ConfigureNote",
-    "parameter": ""
+    "parameter": "",
+    "category": "system",
+    "description": "Set the file path where notes are saved when created"
   },
   {
     "AdditionalNames": [
@@ -73,7 +94,9 @@
       "ConfigureSuccessSound"
     ],
     "action": "ConfigureSuccessSound",
-    "parameter": ""
+    "parameter": "",
+    "category": "system",
+    "description": "Set a custom sound file played on successful actions"
   },
   {
     "AdditionalNames": [
@@ -83,6 +106,8 @@
       "ConfigureErrorSound"
     ],
     "action": "ConfigureErrorSound",
-    "parameter": ""
+    "parameter": "",
+    "category": "system",
+    "description": "Set a custom sound file played on error"
   }
 ]

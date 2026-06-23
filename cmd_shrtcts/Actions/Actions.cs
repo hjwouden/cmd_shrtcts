@@ -38,33 +38,40 @@ namespace cmd_shrtcts
         }
 
 
-        public static string[] getHelpMenuChoices()
+        private record MenuEntry(string Key, string Display);
+
+        private static List<MenuEntry> GetMenuEntries(string excludeCategory = null, string onlyCategory = null)
         {
-            List<string> root = new List<string>();
-            List<string> alreadyInserted = new List<string>();
+            var entries = new List<MenuEntry>();
+            var alreadyInserted = new List<string>();
 
             foreach (var x in Loader.actionsDictionary ?? new Dictionary<string, Loader.Root>())
             {
+                var cat = x.Value?.category;
+                if (excludeCategory != null && cat == excludeCategory) continue;
+                if (onlyCategory != null && cat != onlyCategory) continue;
+
                 if (!alreadyInserted.Contains(x.Key))
                 {
-                    root.Add(x.Key);
+                    var desc = x.Value?.description;
+                    var display = string.IsNullOrWhiteSpace(desc)
+                        ? x.Key
+                        : $"{x.Key}  [grey]— {desc}[/]";
+                    entries.Add(new MenuEntry(x.Key, display));
                     alreadyInserted.Add(x.Key);
+
                     if (x.Value?.AdditionalNames != null)
-                    {
                         foreach (var y in x.Value.AdditionalNames)
-                        {
-                            if (!alreadyInserted.Contains(y))
-                            {
-                                alreadyInserted.Add(y);
-                            }
-                        }
-                    }
+                            if (!alreadyInserted.Contains(y.ToLowerInvariant()))
+                                alreadyInserted.Add(y.ToLowerInvariant());
                 }
             }
 
-            return root.ToArray();
-
+            return entries;
         }
+
+        public static string[] getHelpMenuChoices(string excludeCategory = null, string onlyCategory = null)
+            => GetMenuEntries(excludeCategory, onlyCategory).Select(e => e.Key).ToArray();
 
 
         public static void ListActions(string param)
@@ -86,10 +93,10 @@ namespace cmd_shrtcts
                     {
                         foreach (var y in x.Value.AdditionalNames)
                         {
-                            if (!alreadyInserted.Contains(y))
+                            if (!alreadyInserted.Contains(y.ToLowerInvariant()))
                             {
                                 a.AddNode(y);
-                                alreadyInserted.Add(y);
+                                alreadyInserted.Add(y.ToLowerInvariant());
                             }
                         }
                     }
@@ -99,20 +106,38 @@ namespace cmd_shrtcts
             AnsiConsole.Write(root);
         }
 
+        private const string SystemSettingsLabel = "System Settings >";
+
         public static void SelectMenu()
         {
+            ShowMenuTier(title: "Select from Menu:", excludeCategory: "system", includeSystemEntry: true);
+        }
+
+        private static void ShowMenuTier(string title, string excludeCategory = null, string onlyCategory = null, bool includeSystemEntry = false)
+        {
+            var entries = GetMenuEntries(excludeCategory: excludeCategory, onlyCategory: onlyCategory);
+
+            if (includeSystemEntry)
+                entries.Add(new MenuEntry(SystemSettingsLabel, $"{SystemSettingsLabel}  [grey]— configuration and setup[/]"));
+
             var selection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                .Title("Select from Menu:")
-                .PageSize(25)
-                .MoreChoicesText("Move up and down to reveal more choices")
-                .AddChoices(getHelpMenuChoices())
+                new SelectionPrompt<MenuEntry>()
+                    .Title(title)
+                    .PageSize(25)
+                    .MoreChoicesText("Move up and down to reveal more choices")
+                    .UseConverter(e => e.Display)
+                    .AddChoices(entries)
             );
 
-            LogText("Menu Selection: " +  selection);
+            LogText("Menu Selection: " + selection.Key);
 
-            // Directly invoke the selected action instead of spawning a new cmd window
-            string normalizedSelection = selection.ToLowerInvariant();
+            if (selection.Key == SystemSettingsLabel)
+            {
+                ShowMenuTier(title: "System Settings:", onlyCategory: "system");
+                return;
+            }
+
+            string normalizedSelection = selection.Key.ToLowerInvariant();
             if (Loader.actionsDictionary1?.TryGetValue(normalizedSelection, out Action<object> action) == true)
             {
                 if (!Loader.TryGetParameterFromJson(normalizedSelection, out object parameter) || parameter?.ToString() == "prompt")
@@ -124,7 +149,7 @@ namespace cmd_shrtcts
             }
             else
             {
-                AnsiConsole.MarkupLine($"[red]Action not found:[/] {selection}");
+                AnsiConsole.MarkupLine($"[red]Action not found:[/] {selection.Key}");
             }
         }
 
@@ -282,13 +307,14 @@ namespace cmd_shrtcts
                     break;
             }
 
-            // Create the JSON object using an anonymous type
-            var jsonObject = new
-            {
-                AdditionalNames = additionalNames,
-                action = action,
-                parameter = parameter
-            };
+            var description = AnsiConsole.Prompt(
+                new TextPrompt<string>("[grey]Description (optional — shown as help text in the menu):[/]")
+                    .AllowEmpty()
+            );
+
+            var jsonObject = string.IsNullOrWhiteSpace(description)
+                ? (object)new { AdditionalNames = additionalNames, action = action, parameter = parameter }
+                : (object)new { AdditionalNames = additionalNames, action = action, parameter = parameter, description = description.Trim() };
 
             List<dynamic> jsonObjects = new List<dynamic>();
             if (File.Exists(filePath))
@@ -297,10 +323,8 @@ namespace cmd_shrtcts
                 jsonObjects = JsonConvert.DeserializeObject<List<dynamic>>(fileContent);
             }
 
-            // Add the new JSON object to the list
             jsonObjects.Add(jsonObject);
 
-            // Serialize the updated list to JSON and overwrite the file
             string updatedJson = JsonConvert.SerializeObject(jsonObjects, Formatting.Indented);
             File.WriteAllText(filePath, updatedJson);
 
