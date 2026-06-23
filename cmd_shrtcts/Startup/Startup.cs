@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,7 +50,39 @@ namespace cmd_shrtcts
         {
             Loader.LogText("Startup: Loaded Variables");
             Loader.INPUT_CONFIG_LOCATIONS = GetInputConfigsArray() ?? new string[] { @".\Data\Configs\system-config.json" };
+            LoadCustomSoundPaths();
             return true;
+        }
+
+        private void LoadCustomSoundPaths()
+        {
+            var userSettings = Loader.GetUserAppSettingsPath();
+            if (!File.Exists(userSettings)) return;
+
+            try
+            {
+                var json = File.ReadAllText(userSettings);
+                var config = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                if (config == null) return;
+
+                if (config.TryGetValue(Actions.SuccessSoundKey, out var successVal))
+                {
+                    var path = successVal?.ToString();
+                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                        Loader.SUCCESS_SOUND_FILE_PATH = path;
+                }
+
+                if (config.TryGetValue(Actions.ErrorSoundKey, out var errorVal))
+                {
+                    var path = errorVal?.ToString();
+                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                        Loader.ERROR_SOUND_FILE_PATH = path;
+                }
+            }
+            catch (Exception ex)
+            {
+                Loader.LogText($"Error loading custom sound paths: {ex.Message}");
+            }
         }
 
         internal void LoadActions()

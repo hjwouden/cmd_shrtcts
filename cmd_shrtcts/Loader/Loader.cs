@@ -226,6 +226,12 @@ namespace cmd_shrtcts
                 case "QuickNote":
                     action = (parameter) => Actions.QuickNote(parameter.ToString());
                     return true;
+                case "ConfigureSuccessSound":
+                    action = (parameter) => Actions.ConfigureSuccessSound(parameter.ToString());
+                    return true;
+                case "ConfigureErrorSound":
+                    action = (parameter) => Actions.ConfigureErrorSound(parameter.ToString());
+                    return true;
                 default:
                     action = null;
                     return false;

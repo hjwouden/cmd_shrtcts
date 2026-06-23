@@ -64,5 +64,25 @@
     ],
     "action": "ConfigureNote",
     "parameter": ""
+  },
+  {
+    "AdditionalNames": [
+      "successsound",
+      "success-sound",
+      "setsuccess",
+      "ConfigureSuccessSound"
+    ],
+    "action": "ConfigureSuccessSound",
+    "parameter": ""
+  },
+  {
+    "AdditionalNames": [
+      "errorsound",
+      "error-sound",
+      "seterror",
+      "ConfigureErrorSound"
+    ],
+    "action": "ConfigureErrorSound",
+    "parameter": ""
   }
 ]

@@ -57,6 +57,8 @@
         [InlineData("RemoveFromConfig")]
         [InlineData("ConfigureNote")]
         [InlineData("AddToConfig")]
+        [InlineData("ConfigureSuccessSound")]
+        [InlineData("ConfigureErrorSound")]
         public void AllConfigActions_HaveDelegates_Defined(string actionName)
         {
             // Arrange & Act
@@ -116,6 +118,8 @@
         [InlineData("RemoveConfigPath")]
         [InlineData("AddNote")]
         [InlineData("ConfigureNote")]
+        [InlineData("ConfigureSuccessSound")]
+        [InlineData("ConfigureErrorSound")]
         public void AllRegisteredActions_HaveDelegates(string actionName)
         {
             // Act

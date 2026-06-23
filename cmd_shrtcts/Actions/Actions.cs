@@ -111,11 +111,21 @@ namespace cmd_shrtcts
 
             LogText("Menu Selection: " +  selection);
 
-            // Use 'sc' on macOS, 'cc' on Windows (matches ToolCommandName in csproj)
-            var toolCommand = OperatingSystem.IsMacOS() ? "sc" : "cc";
-            OpenCMD(toolCommand + " " + selection);
-
-
+            // Directly invoke the selected action instead of spawning a new cmd window
+            string normalizedSelection = selection.ToLowerInvariant();
+            if (Loader.actionsDictionary1?.TryGetValue(normalizedSelection, out Action<object> action) == true)
+            {
+                if (!Loader.TryGetParameterFromJson(normalizedSelection, out object parameter) || parameter?.ToString() == "prompt")
+                {
+                    LogText("Enter a parameter:");
+                    parameter = Console.ReadLine();
+                }
+                action.Invoke(parameter);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[red]Action not found:[/] {selection}");
+            }
         }
 
         public static void TextToClipboard(string pathToTextFile)
