@@ -109,5 +109,33 @@
     "parameter": "",
     "category": "system",
     "description": "Set a custom sound file played on error"
+  },
+  {
+    "AdditionalNames": [ "addquote", "add-quote", "AddQuote" ],
+    "action": "AddQuote",
+    "parameter": "",
+    "category": "system",
+    "description": "Add a new quote to the random quote pool"
+  },
+  {
+    "AdditionalNames": [ "removequote", "remove-quote", "RemoveQuote" ],
+    "action": "RemoveQuote",
+    "parameter": "",
+    "category": "system",
+    "description": "Remove a quote from the random quote pool"
+  },
+  {
+    "AdditionalNames": [ "editquote", "edit-quote", "EditQuote" ],
+    "action": "EditQuote",
+    "parameter": "",
+    "category": "system",
+    "description": "Edit an existing quote in the random quote pool"
+  },
+  {
+    "AdditionalNames": [ "togglequotes", "toggle-quotes", "ToggleQuotes" ],
+    "action": "ToggleQuotes",
+    "parameter": "",
+    "category": "system",
+    "description": "Enable or disable the random quote displayed after each action"
   }
 ]

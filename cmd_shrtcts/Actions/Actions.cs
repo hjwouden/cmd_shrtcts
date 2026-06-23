@@ -568,9 +568,11 @@ namespace cmd_shrtcts
 
         public static void DisplayRandomQuote()
         {
+            if (!Loader.QUOTES_ENABLED) return;
+
             try
             {
-                string quotesFilePath = Loader.ChangeFromLocalToDirectoryPath(@".\Data\Quotes\movie-quotes.txt");
+                string quotesFilePath = Loader.GetEffectiveQuotesPath();
 
                 if (!File.Exists(quotesFilePath))
                 {

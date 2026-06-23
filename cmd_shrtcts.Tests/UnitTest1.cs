@@ -60,6 +60,10 @@
         [InlineData("ConfigureSuccessSound")]
         [InlineData("ConfigureErrorSound")]
         [InlineData("EditConfig")]
+        [InlineData("AddQuote")]
+        [InlineData("RemoveQuote")]
+        [InlineData("EditQuote")]
+        [InlineData("ToggleQuotes")]
         public void AllConfigActions_HaveDelegates_Defined(string actionName)
         {
             // Arrange & Act
@@ -122,6 +126,10 @@
         [InlineData("ConfigureSuccessSound")]
         [InlineData("ConfigureErrorSound")]
         [InlineData("EditConfig")]
+        [InlineData("AddQuote")]
+        [InlineData("RemoveQuote")]
+        [InlineData("EditQuote")]
+        [InlineData("ToggleQuotes")]
         public void AllRegisteredActions_HaveDelegates(string actionName)
         {
             // Act

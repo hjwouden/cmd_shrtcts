@@ -22,6 +22,7 @@ namespace cmd_shrtcts
             : "google-chrome"; // Fallback for Linux/Mac, though 'open' is preferred on Mac
         public static string OUTPUT_LOG_FILE_PATH = "log.txt";
         public static int COMMAND_WINDOW_TIMEOUT_SECONDS = 5; // How long the command window stays open (in seconds)
+        public static bool QUOTES_ENABLED = true;
         public static string[] INPUT_CONFIG_LOCATIONS =
             {
                 Path.Combine("Data", "Configs", "system-config.json")
@@ -36,6 +37,19 @@ namespace cmd_shrtcts
         public static string GetUserAppSettingsPath()
         {
             return Path.Combine(GetUserDataDirectory(), "appsettings.json");
+        }
+
+        public static string GetUserQuotesPath()
+        {
+            return Path.Combine(GetUserDataDirectory(), "quotes.txt");
+        }
+
+        // Returns the user quotes file if it exists, otherwise falls back to the bundled file.
+        public static string GetEffectiveQuotesPath()
+        {
+            var userPath = GetUserQuotesPath();
+            if (File.Exists(userPath)) return userPath;
+            return ChangeFromLocalToDirectoryPath(Path.Combine("Data", "Quotes", "movie-quotes.txt"));
         }
 
         public static string GetPackagedAppSettingsPath()
@@ -236,6 +250,18 @@ namespace cmd_shrtcts
                     return true;
                 case "EditConfig":
                     action = (parameter) => Actions.EditConfig(parameter.ToString());
+                    return true;
+                case "AddQuote":
+                    action = (parameter) => Actions.AddQuote(parameter.ToString());
+                    return true;
+                case "RemoveQuote":
+                    action = (parameter) => Actions.RemoveQuote(parameter.ToString());
+                    return true;
+                case "EditQuote":
+                    action = (parameter) => Actions.EditQuote(parameter.ToString());
+                    return true;
+                case "ToggleQuotes":
+                    action = (parameter) => Actions.ToggleQuotes(parameter.ToString());
                     return true;
                 default:
                     action = null;

@@ -78,6 +78,12 @@ namespace cmd_shrtcts
                     if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
                         Loader.ERROR_SOUND_FILE_PATH = path;
                 }
+
+                if (config.TryGetValue(Actions.QuotesEnabledKey, out var quotesVal)
+                    && bool.TryParse(quotesVal?.ToString(), out var quotesEnabled))
+                {
+                    Loader.QUOTES_ENABLED = quotesEnabled;
+                }
             }
             catch (Exception ex)
             {
