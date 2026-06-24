@@ -4,9 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Media;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Spectre.Console;
+
+[assembly: InternalsVisibleTo("cmd_shrtcts.Tests")]
 
 namespace cmd_shrtcts
 {
@@ -28,14 +31,24 @@ namespace cmd_shrtcts
                 Path.Combine("Data", "Configs", "system-config.json")
             };
 
+        // Set by integration tests to redirect all user-data reads/writes to a temp directory.
+        // Always null in production.
+        internal static string? _testUserDataDirOverride = null;
+
+        // Set by integration tests to redirect appsettings specifically (takes precedence over _testUserDataDirOverride).
+        // Always null in production.
+        internal static string? _testAppSettingsOverride = null;
+
         public static string GetUserDataDirectory()
         {
+            if (_testUserDataDirOverride != null) return _testUserDataDirOverride;
             var baseDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             return Path.Combine(baseDir, "cmd_shrtcts");
         }
 
         public static string GetUserAppSettingsPath()
         {
+            if (_testAppSettingsOverride != null) return _testAppSettingsOverride;
             return Path.Combine(GetUserDataDirectory(), "appsettings.json");
         }
 
@@ -262,6 +275,12 @@ namespace cmd_shrtcts
                     return true;
                 case "ToggleQuotes":
                     action = (parameter) => Actions.ToggleQuotes(parameter.ToString());
+                    return true;
+                case "AddWorkLog":
+                    action = (parameter) => Actions.AddWorkLog(parameter.ToString());
+                    return true;
+                case "ConfigureWorkLog":
+                    action = (parameter) => Actions.ConfigureWorkLog(parameter.ToString());
                     return true;
                 default:
                     action = null;

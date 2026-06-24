@@ -137,5 +137,18 @@
     "parameter": "",
     "category": "system",
     "description": "Enable or disable the random quote displayed after each action"
+  },
+  {
+    "AdditionalNames": [ "wl", "worklog", "AddWorkLog" ],
+    "action": "AddWorkLog",
+    "parameter": "",
+    "description": "wl (WorkLog) — append a timestamped entry to your work log file"
+  },
+  {
+    "AdditionalNames": [ "configureworklog", "cwl", "ConfigureWorkLog" ],
+    "action": "ConfigureWorkLog",
+    "parameter": "",
+    "category": "system",
+    "description": "Set the file path where work log entries are saved"
   }
 ]
