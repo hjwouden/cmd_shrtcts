@@ -15,27 +15,124 @@ namespace cmd_shrtcts
 {
     public static partial class Actions
     {
-        public static void OpenWebPage(string path)
+        // Opens a URL. When browser is "chrome", "edge", or "firefox" the page opens in that
+        // browser; otherwise (null/empty/unrecognized) it opens in the OS default browser.
+        // Any failure to launch the requested browser falls back to the OS default.
+        public static void OpenWebPage(string path, string? browser = null)
         {
-            if (OperatingSystem.IsWindows())
+            try
             {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                startInfo.FileName = Loader.CHROME_BROWSER_PATH;
-                startInfo.Arguments = $@"--new-window {path} ";
-                process.StartInfo = startInfo;
-                process.Start();
+                if (OperatingSystem.IsWindows())
+                {
+                    var exe = WindowsBrowserExecutable(browser);
+                    if (exe == null)
+                        OpenInOsDefaultBrowser(path);
+                    else
+                        Process.Start(new ProcessStartInfo(exe) { Arguments = path, UseShellExecute = true });
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    var app = MacBrowserApp(browser);
+                    if (app == null)
+                        Process.Start("open", path);
+                    else
+                        Process.Start("open", new[] { "-a", app, path });
+                }
+                else // Linux
+                {
+                    var cmd = LinuxBrowserCommand(browser);
+                    Process.Start(cmd ?? "xdg-open", path);
+                }
             }
-            else if (OperatingSystem.IsMacOS())
+            catch (Exception ex)
             {
-                Process.Start("open", path);
-            }
-            else // Linux
-            {
-                Process.Start("xdg-open", path);
+                Loader.LogText($"OpenWebPage: could not launch browser '{browser}' for '{path}': {ex.Message}. Falling back to OS default.");
+                try { OpenInOsDefaultBrowser(path); }
+                catch (Exception ex2) { Loader.LogText($"OpenWebPage: OS default fallback also failed: {ex2.Message}"); }
             }
         }
+
+        // Interactive picker for the browser an OpenWebPage entry should use.
+        // Returns "chrome"/"edge"/"firefox", or null for the OS default browser.
+        // Pass the entry's current value to offer a "keep current" choice when editing.
+        private static string? PromptForBrowser(string? current)
+        {
+            const string osDefault = "Default (OS default browser)";
+            var normalized = NormalizeBrowser(current);
+
+            var choices = new List<string>();
+            string? keepLabel = null;
+            if (!string.IsNullOrWhiteSpace(current))
+            {
+                keepLabel = $"Keep current ({normalized ?? "default"})";
+                choices.Add(keepLabel);
+            }
+            choices.AddRange(new[] { osDefault, "Chrome", "Edge", "Firefox" });
+
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[green]Open in which browser?[/]")
+                    .AddChoices(choices));
+
+            if (choice == keepLabel) return normalized;
+            if (choice == osDefault) return null;
+            return choice.ToLowerInvariant();
+        }
+
+        private static void OpenInOsDefaultBrowser(string path)
+        {
+            if (OperatingSystem.IsWindows())
+                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            else if (OperatingSystem.IsMacOS())
+                Process.Start("open", path);
+            else
+                Process.Start("xdg-open", path);
+        }
+
+        // Normalizes a user-supplied browser choice to a known token, or null for "OS default".
+        internal static string? NormalizeBrowser(string? browser)
+        {
+            switch (browser?.Trim().ToLowerInvariant())
+            {
+                case "chrome":
+                case "google chrome":
+                    return "chrome";
+                case "edge":
+                case "microsoft edge":
+                    return "edge";
+                case "firefox":
+                    return "firefox";
+                default:
+                    return null; // OS default
+            }
+        }
+
+        // macOS application name for `open -a`; null means OS default.
+        internal static string? MacBrowserApp(string? browser) => NormalizeBrowser(browser) switch
+        {
+            "chrome" => "Google Chrome",
+            "edge" => "Microsoft Edge",
+            "firefox" => "Firefox",
+            _ => null,
+        };
+
+        // Windows executable name (resolved via ShellExecute App Paths); null means OS default.
+        internal static string? WindowsBrowserExecutable(string? browser) => NormalizeBrowser(browser) switch
+        {
+            "chrome" => "chrome",
+            "edge" => "msedge",
+            "firefox" => "firefox",
+            _ => null,
+        };
+
+        // Linux launcher command; null means use xdg-open (OS default).
+        internal static string? LinuxBrowserCommand(string? browser) => NormalizeBrowser(browser) switch
+        {
+            "chrome" => "google-chrome",
+            "edge" => "microsoft-edge",
+            "firefox" => "firefox",
+            _ => null,
+        };
 
 
         private record MenuEntry(string Key, string Display);
@@ -251,11 +348,13 @@ namespace cmd_shrtcts
             );
 
             string? parameter;
+            string? browser = null;
             switch (action)
             {
                 case "OpenWebPage":
                     Console.WriteLine("Enter URL:");
                     parameter = Console.ReadLine();
+                    browser = PromptForBrowser(null);
                     break;
 
                 case "OpenCMD":
@@ -312,9 +411,14 @@ namespace cmd_shrtcts
                     .AllowEmpty()
             );
 
-            var jsonObject = string.IsNullOrWhiteSpace(description)
-                ? (object)new { AdditionalNames = additionalNames, action = action, parameter = parameter }
-                : (object)new { AdditionalNames = additionalNames, action = action, parameter = parameter, description = description.Trim() };
+            var jsonObject = new Loader.Root
+            {
+                AdditionalNames = additionalNames,
+                action = action,
+                parameter = parameter,
+                description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
+                browser = browser
+            };
 
             List<dynamic> jsonObjects = new List<dynamic>();
             if (File.Exists(filePath))
@@ -325,7 +429,13 @@ namespace cmd_shrtcts
 
             jsonObjects.Add(jsonObject);
 
-            string updatedJson = JsonConvert.SerializeObject(jsonObjects, Formatting.Indented);
+            // Ignore nulls so optional fields (description, browser, category) are only written when set.
+            var writeSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            string updatedJson = JsonConvert.SerializeObject(jsonObjects, writeSettings);
             File.WriteAllText(filePath, updatedJson);
 
             Console.WriteLine("JSON object appended successfully!");

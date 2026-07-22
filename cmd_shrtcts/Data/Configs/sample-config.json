@@ -8,5 +8,17 @@
     "AdditionalNames": [ "HR Portal", "HR" ],
     "action": "OpenWebPage",
     "parameter": "https://online.adp.com/"
+  },
+  {
+    "AdditionalNames": [ "Docs", "docs" ],
+    "action": "OpenWebPage",
+    "parameter": "https://learn.microsoft.com/",
+    "browser": "edge"
+  },
+  {
+    "AdditionalNames": [ "GitHub" ],
+    "action": "OpenWebPage",
+    "parameter": "https://github.com/",
+    "browser": "chrome"
   }
 ]

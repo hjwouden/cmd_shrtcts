@@ -100,6 +100,12 @@ public static partial class Actions
             paramPrompt = paramPrompt.DefaultValue(entry.parameter);
         entry.parameter = AnsiConsole.Prompt(paramPrompt);
 
+        // Browser (only relevant for OpenWebPage; cleared for other actions)
+        if (string.Equals(entry.action, "OpenWebPage", StringComparison.OrdinalIgnoreCase))
+            entry.browser = PromptForBrowser(entry.browser);
+        else
+            entry.browser = null;
+
         // Description
         var descPrompt = new TextPrompt<string>("[green]Description[/] [grey](optional — shown as help text in menu):[/]").AllowEmpty();
         if (!string.IsNullOrWhiteSpace(entry.description))

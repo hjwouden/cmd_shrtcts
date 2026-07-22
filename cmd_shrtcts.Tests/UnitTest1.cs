@@ -204,4 +204,96 @@
             Assert.NotNull(action);
         }
     }
+
+    public class BrowserSelectionTests
+    {
+        [Theory]
+        [InlineData("chrome", "chrome")]
+        [InlineData("Chrome", "chrome")]
+        [InlineData("  CHROME  ", "chrome")]
+        [InlineData("Google Chrome", "chrome")]
+        [InlineData("edge", "edge")]
+        [InlineData("Microsoft Edge", "edge")]
+        [InlineData("firefox", "firefox")]
+        public void NormalizeBrowser_KnownBrowsers_ReturnsCanonicalToken(string input, string expected)
+        {
+            Assert.Equal(expected, Actions.NormalizeBrowser(input));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData("default")]
+        [InlineData("safari")]
+        [InlineData("opera")]
+        public void NormalizeBrowser_UnknownOrEmpty_ReturnsNullForOsDefault(string? input)
+        {
+            Assert.Null(Actions.NormalizeBrowser(input));
+        }
+
+        [Theory]
+        [InlineData("chrome", "Google Chrome")]
+        [InlineData("edge", "Microsoft Edge")]
+        [InlineData("firefox", "Firefox")]
+        public void MacBrowserApp_KnownBrowsers_MapToOpenAppName(string input, string expected)
+        {
+            Assert.Equal(expected, Actions.MacBrowserApp(input));
+        }
+
+        [Theory]
+        [InlineData("chrome", "chrome")]
+        [InlineData("edge", "msedge")]
+        [InlineData("firefox", "firefox")]
+        public void WindowsBrowserExecutable_KnownBrowsers_MapToExecutable(string input, string expected)
+        {
+            Assert.Equal(expected, Actions.WindowsBrowserExecutable(input));
+        }
+
+        [Fact]
+        public void BrowserResolvers_UnknownBrowser_ReturnNullForOsDefault()
+        {
+            Assert.Null(Actions.MacBrowserApp("safari"));
+            Assert.Null(Actions.WindowsBrowserExecutable(null));
+            Assert.Null(Actions.LinuxBrowserCommand("default"));
+        }
+
+        [Fact]
+        public void OpenWebPageEntry_WithBrowser_LoadsDelegateAndRoundTrips()
+        {
+            // Arrange: a config file containing an OpenWebPage entry with a per-item browser
+            Loader.OUTPUT_LOG_FILE_PATH = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "cc-test-log.txt");
+            Loader.ERROR_SOUND_FILE_PATH = null;
+
+            var tempConfig = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(), $"cc-browser-test-{System.Guid.NewGuid():N}.json");
+            var entries = new List<Loader.Root>
+            {
+                new Loader.Root
+                {
+                    AdditionalNames = new List<string> { "Docs" },
+                    action = "OpenWebPage",
+                    parameter = "https://example.com",
+                    browser = "edge"
+                }
+            };
+            System.IO.File.WriteAllText(tempConfig,
+                Newtonsoft.Json.JsonConvert.SerializeObject(entries));
+
+            try
+            {
+                // Act: the entry loads into a runnable delegate (browser captured at load time)
+                var dictionary = Loader.LoadActionsDictionary(new[] { tempConfig });
+
+                // Assert: alias present with its browser preserved on the stored Root
+                Assert.True(dictionary.ContainsKey("docs"));
+                Assert.Equal("edge", dictionary["docs"].browser);
+                Assert.True(Loader.actionsDictionary1!.ContainsKey("docs"));
+            }
+            finally
+            {
+                System.IO.File.Delete(tempConfig);
+            }
+        }
+    }
 }

@@ -20,9 +20,6 @@ namespace cmd_shrtcts
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
         public static string? SUCCESS_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chime.wav");
         public static string? ERROR_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chord.wav");
-        public static string CHROME_BROWSER_PATH = OperatingSystem.IsWindows() 
-            ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 
-            : "google-chrome"; // Fallback for Linux/Mac, though 'open' is preferred on Mac
         public static string OUTPUT_LOG_FILE_PATH = "log.txt";
         public static int COMMAND_WINDOW_TIMEOUT_SECONDS = 5; // How long the command window stays open (in seconds)
         public static bool QUOTES_ENABLED = true;
@@ -110,6 +107,9 @@ namespace cmd_shrtcts
             public string? parameter { get; set; }
             public string? category { get; set; }
             public string? description { get; set; }
+            // Optional browser for OpenWebPage entries: "chrome", "edge", "firefox".
+            // Null/empty means open in the operating system's default browser.
+            public string? browser { get; set; }
         }
 
         public static bool TryGetParameterFromJson(string value, out object? parameter)
@@ -173,18 +173,26 @@ namespace cmd_shrtcts
 
                             foreach (string b in a.AdditionalNames)
                             {
-                                if (TryGetActionDelegate(a.action, out Action<object>? action) && action != null)
+                                // OpenWebPage entries capture their per-entry browser choice so it
+                                // reaches Actions.OpenWebPage at invoke time; all other actions use
+                                // the generic delegate.
+                                Action<object>? action;
+                                if (string.Equals(a.action, "OpenWebPage", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    // Store keys in lowercase for case-insensitive lookup
-                                    string lowerKey = b.ToLowerInvariant();
-                                    actionsDictionary1[lowerKey] = action;
-                                    actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter, category = a.category, description = a.description };
+                                    string? browser = a.browser;
+                                    action = (parameter) => Actions.OpenWebPage(parameter?.ToString() ?? string.Empty, browser);
                                 }
-                                else
+                                else if (!TryGetActionDelegate(a.action, out action) || action == null)
                                 {
                                     LogText("Invalid action configuration: " + b);
                                     Actions.PlaySound("error");
+                                    continue;
                                 }
+
+                                // Store keys in lowercase for case-insensitive lookup
+                                string lowerKey = b.ToLowerInvariant();
+                                actionsDictionary1[lowerKey] = action;
+                                actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter, category = a.category, description = a.description, browser = a.browser };
                             }
                         }
                     }
