@@ -22,7 +22,7 @@ public static partial class Actions
     }
 
     // Returns the newly-set path, or null if the user cancelled or cleared.
-    private static string PromptForSoundPath(string key, string soundKind)
+    private static string? PromptForSoundPath(string key, string soundKind)
     {
         Loader.EnsureUserAppSettingsExists();
         var userAppSettingsPath = Loader.GetUserAppSettingsPath();
@@ -75,7 +75,7 @@ public static partial class Actions
         }
     }
 
-    internal static string GetSoundConfigPath(string key, string userAppSettingsPath)
+    internal static string? GetSoundConfigPath(string key, string userAppSettingsPath)
     {
         try
         {

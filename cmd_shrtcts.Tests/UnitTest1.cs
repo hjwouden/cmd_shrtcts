@@ -152,7 +152,8 @@
 
             // Count expected total aliases from the JSON
             var json = System.IO.File.ReadAllText(configPath);
-            var entries = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Loader.Root>>(json);
+            var entries = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Loader.Root>>(json)
+                ?? new List<Loader.Root>();
             // Keys are lowercased on load, so count unique lowercase aliases to match dictionary behavior
             int expectedAliasCount = entries
                 .SelectMany(e => e.AdditionalNames ?? new System.Collections.Generic.List<string>())

@@ -118,7 +118,7 @@ public static partial class Actions
         }
     }
 
-    private static string GetNotesFilePath(string userAppSettingsPath)
+    private static string? GetNotesFilePath(string userAppSettingsPath)
     {
         try
         {

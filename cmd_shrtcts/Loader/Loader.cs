@@ -18,8 +18,8 @@ namespace cmd_shrtcts
         //CONFIGURATION VALUES
         public static string ASSEMBLY_LOCATION = "";
         public static string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        public static string SUCCESS_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chime.wav");
-        public static string ERROR_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chord.wav");
+        public static string? SUCCESS_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chime.wav");
+        public static string? ERROR_SOUND_FILE_PATH = Path.Combine("Data", "Sounds", "chord.wav");
         public static string CHROME_BROWSER_PATH = OperatingSystem.IsWindows() 
             ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 
             : "google-chrome"; // Fallback for Linux/Mac, though 'open' is preferred on Mac
@@ -112,11 +112,11 @@ namespace cmd_shrtcts
             public string? description { get; set; }
         }
 
-        public static bool TryGetParameterFromJson(string value, out object parameter)
+        public static bool TryGetParameterFromJson(string value, out object? parameter)
         {
             if(Loader.actionsDictionary != null)
             {
-                if (Loader.actionsDictionary.TryGetValue(value, out Loader.Root result))
+                if (Loader.actionsDictionary.TryGetValue(value, out Loader.Root? result))
                 {
                     parameter = result.parameter;
                     return true;
@@ -159,7 +159,7 @@ namespace cmd_shrtcts
                 try
                 {
                     string json = File.ReadAllText(useThisConfigFilePath);
-                    List<Root> config = JsonConvert.DeserializeObject<List<Root>>(json);
+                    List<Root>? config = JsonConvert.DeserializeObject<List<Root>>(json);
 
                     if (config != null && config.Count > 0)
                     {
@@ -173,7 +173,7 @@ namespace cmd_shrtcts
 
                             foreach (string b in a.AdditionalNames)
                             {
-                                if (TryGetActionDelegate(a.action, out Action<object> action))
+                                if (TryGetActionDelegate(a.action, out Action<object>? action) && action != null)
                                 {
                                     // Store keys in lowercase for case-insensitive lookup
                                     string lowerKey = b.ToLowerInvariant();
@@ -203,84 +203,84 @@ namespace cmd_shrtcts
             return actions;
         }
 
-        public static bool TryGetActionDelegate(string actionName, out Action<object> action)
+        public static bool TryGetActionDelegate(string? actionName, out Action<object>? action)
         {
             switch (actionName)
             {
                 case "OpenWebPage":
-                    action = (parameter) => Actions.OpenWebPage(parameter.ToString());
+                    action = (parameter) => Actions.OpenWebPage(parameter.ToString() ?? string.Empty);
                     return true;
                 case "AddToConfig":
-                    action = (parameter) => Actions.AddToConfig(parameter.ToString());
+                    action = (parameter) => Actions.AddToConfig(parameter.ToString() ?? string.Empty);
                     return true;
                 case "OpenFile":
-                    action = (parameter) => Actions.OpenFile(parameter.ToString());
+                    action = (parameter) => Actions.OpenFile(parameter.ToString() ?? string.Empty);
                     return true;
                 case "OpenCMD":
-                    action = (parameter) => Actions.OpenCMD(parameter.ToString());
+                    action = (parameter) => Actions.OpenCMD(parameter.ToString() ?? string.Empty);
                     return true;
                 case "OpenCMDWithParams":
-                    action = (parameter) => Actions.OpenCMDWithParams(parameter.ToString().Split(',')[0], parameter.ToString().Split(',')[1]);
+                    action = (parameter) => Actions.OpenCMDWithParams(parameter.ToString()!.Split(',')[0], parameter.ToString()!.Split(',')[1]);
                     return true;
                 case "list":
-                    action = (parameter) => Actions.ListActions(parameter.ToString());
+                    action = (parameter) => Actions.ListActions(parameter.ToString() ?? string.Empty);
                     return true;
                 case "PutTextOnClipboard":
-                    action = (parameter) => Actions.TextToClipboard(parameter.ToString());
+                    action = (parameter) => Actions.TextToClipboard(parameter.ToString() ?? string.Empty);
                     return true;
                 case "Menu":
                     action = (parameter) => Actions.SelectMenu();
                     return true;
                 case "SetConfigPath":
-                    action = (parameter) => Actions.SetConfigPath(parameter.ToString());
+                    action = (parameter) => Actions.SetConfigPath(parameter.ToString() ?? string.Empty);
                     return true;
                 case "RemoveFromConfig":
-                    action = (parameter) => Actions.RemoveFromConfig(parameter.ToString());
+                    action = (parameter) => Actions.RemoveFromConfig(parameter.ToString() ?? string.Empty);
                     return true;
                 case "RemoveConfigPath":
-                    action = (parameter) => Actions.RemoveConfigPath(parameter.ToString());
+                    action = (parameter) => Actions.RemoveConfigPath(parameter.ToString() ?? string.Empty);
                     return true;
                 case "AddNote":
-                    action = (parameter) => Actions.AddNote(parameter.ToString());
+                    action = (parameter) => Actions.AddNote(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ConfigureNote":
-                    action = (parameter) => Actions.ConfigureNote(parameter.ToString());
+                    action = (parameter) => Actions.ConfigureNote(parameter.ToString() ?? string.Empty);
                     return true;
                 case "OpenCMDAtLocation":
-                    action = (parameter) => Actions.OpenCMDAtLocation(parameter.ToString());
+                    action = (parameter) => Actions.OpenCMDAtLocation(parameter.ToString() ?? string.Empty);
                     return true;
                 case "OpenCMDPersistent":
-                    action = (parameter) => Actions.OpenCMDPersistent(parameter.ToString());
+                    action = (parameter) => Actions.OpenCMDPersistent(parameter.ToString() ?? string.Empty);
                     return true;
                 case "QuickNote":
-                    action = (parameter) => Actions.QuickNote(parameter.ToString());
+                    action = (parameter) => Actions.QuickNote(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ConfigureSuccessSound":
-                    action = (parameter) => Actions.ConfigureSuccessSound(parameter.ToString());
+                    action = (parameter) => Actions.ConfigureSuccessSound(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ConfigureErrorSound":
-                    action = (parameter) => Actions.ConfigureErrorSound(parameter.ToString());
+                    action = (parameter) => Actions.ConfigureErrorSound(parameter.ToString() ?? string.Empty);
                     return true;
                 case "EditConfig":
-                    action = (parameter) => Actions.EditConfig(parameter.ToString());
+                    action = (parameter) => Actions.EditConfig(parameter.ToString() ?? string.Empty);
                     return true;
                 case "AddQuote":
-                    action = (parameter) => Actions.AddQuote(parameter.ToString());
+                    action = (parameter) => Actions.AddQuote(parameter.ToString() ?? string.Empty);
                     return true;
                 case "RemoveQuote":
-                    action = (parameter) => Actions.RemoveQuote(parameter.ToString());
+                    action = (parameter) => Actions.RemoveQuote(parameter.ToString() ?? string.Empty);
                     return true;
                 case "EditQuote":
-                    action = (parameter) => Actions.EditQuote(parameter.ToString());
+                    action = (parameter) => Actions.EditQuote(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ToggleQuotes":
-                    action = (parameter) => Actions.ToggleQuotes(parameter.ToString());
+                    action = (parameter) => Actions.ToggleQuotes(parameter.ToString() ?? string.Empty);
                     return true;
                 case "AddWorkLog":
-                    action = (parameter) => Actions.AddWorkLog(parameter.ToString());
+                    action = (parameter) => Actions.AddWorkLog(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ConfigureWorkLog":
-                    action = (parameter) => Actions.ConfigureWorkLog(parameter.ToString());
+                    action = (parameter) => Actions.ConfigureWorkLog(parameter.ToString() ?? string.Empty);
                     return true;
                 default:
                     action = null;

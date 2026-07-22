@@ -40,7 +40,7 @@ namespace cmd_shrtcts
 
         private record MenuEntry(string Key, string Display);
 
-        private static List<MenuEntry> GetMenuEntries(string excludeCategory = null, string onlyCategory = null)
+        private static List<MenuEntry> GetMenuEntries(string? excludeCategory = null, string? onlyCategory = null)
         {
             var entries = new List<MenuEntry>();
             var alreadyInserted = new List<string>();
@@ -70,7 +70,7 @@ namespace cmd_shrtcts
             return entries;
         }
 
-        public static string[] getHelpMenuChoices(string excludeCategory = null, string onlyCategory = null)
+        public static string[] getHelpMenuChoices(string? excludeCategory = null, string? onlyCategory = null)
             => GetMenuEntries(excludeCategory, onlyCategory).Select(e => e.Key).ToArray();
 
 
@@ -113,7 +113,7 @@ namespace cmd_shrtcts
             ShowMenuTier(title: "Select from Menu:", excludeCategory: "system", includeSystemEntry: true);
         }
 
-        private static void ShowMenuTier(string title, string excludeCategory = null, string onlyCategory = null, bool includeSystemEntry = false)
+        private static void ShowMenuTier(string title, string? excludeCategory = null, string? onlyCategory = null, bool includeSystemEntry = false)
         {
             var entries = GetMenuEntries(excludeCategory: excludeCategory, onlyCategory: onlyCategory);
 
@@ -138,14 +138,14 @@ namespace cmd_shrtcts
             }
 
             string normalizedSelection = selection.Key.ToLowerInvariant();
-            if (Loader.actionsDictionary1?.TryGetValue(normalizedSelection, out Action<object> action) == true)
+            if (Loader.actionsDictionary1?.TryGetValue(normalizedSelection, out Action<object>? action) == true)
             {
-                if (!Loader.TryGetParameterFromJson(normalizedSelection, out object parameter) || parameter?.ToString() == "prompt")
+                if (!Loader.TryGetParameterFromJson(normalizedSelection, out object? parameter) || parameter?.ToString() == "prompt")
                 {
                     LogText("Enter a parameter:");
                     parameter = Console.ReadLine();
                 }
-                action.Invoke(parameter);
+                action!.Invoke(parameter ?? string.Empty);
             }
             else
             {
@@ -236,7 +236,7 @@ namespace cmd_shrtcts
 
             // Get input for the JSON object parameters
             Console.WriteLine("Enter comma-separated additional names (e.g., name1, name2): ");
-            string namesInput = Console.ReadLine();
+            string namesInput = Console.ReadLine() ?? string.Empty;
             List<string> additionalNames = namesInput.Split(',').Select(name => name.Trim()).ToList();
 
             var action = AnsiConsole.Prompt(
@@ -250,7 +250,7 @@ namespace cmd_shrtcts
                     })
             );
 
-            string parameter;
+            string? parameter;
             switch (action)
             {
                 case "OpenWebPage":
@@ -320,7 +320,7 @@ namespace cmd_shrtcts
             if (File.Exists(filePath))
             {
                 string fileContent = File.ReadAllText(filePath);
-                jsonObjects = JsonConvert.DeserializeObject<List<dynamic>>(fileContent);
+                jsonObjects = JsonConvert.DeserializeObject<List<dynamic>>(fileContent) ?? new List<dynamic>();
             }
 
             jsonObjects.Add(jsonObject);
@@ -537,7 +537,7 @@ namespace cmd_shrtcts
 
         public static void PlaySound(string kind)
         {
-            string filePath = Loader.ERROR_SOUND_FILE_PATH;
+            string? filePath = Loader.ERROR_SOUND_FILE_PATH;
             if (kind == "success")
             {
                 filePath = Loader.SUCCESS_SOUND_FILE_PATH;

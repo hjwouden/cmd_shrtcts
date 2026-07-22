@@ -30,7 +30,7 @@ namespace cmd_shrtcts
             catch (Exception ex)
             {
                 Loader.LogText(ex.ToString());
-                throw ex;
+                throw;
             }
             
         }

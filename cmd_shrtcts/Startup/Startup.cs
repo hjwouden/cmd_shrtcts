@@ -104,16 +104,16 @@ namespace cmd_shrtcts
             // Normalize input to lowercase for case-insensitive lookup
             string normalizedValue = value.ToLowerInvariant();
 
-            if (Loader.actionsDictionary1?.TryGetValue(normalizedValue, out Action<object> action) == true)
+            if (Loader.actionsDictionary1?.TryGetValue(normalizedValue, out Action<object>? action) == true)
             {
-                if (!Loader.TryGetParameterFromJson(normalizedValue, out object parameter) || parameter == "prompt")
+                if (!Loader.TryGetParameterFromJson(normalizedValue, out object? parameter) || (parameter as string) == "prompt")
                 {
                     Loader.LogText("Enter a parameter:");
-                    parameter = Console.ReadLine();
+                    parameter = Console.ReadLine() ?? string.Empty;
                 }
 
                 // Invoke desired Action
-                action.Invoke(parameter);
+                action!.Invoke(parameter ?? string.Empty);
                 Actions.PlaySound("success");
                 Actions.DisplayRandomQuote();
 
@@ -140,8 +140,8 @@ namespace cmd_shrtcts
             
             Loader.OUTPUT_LOG_FILE_PATH = Path.Combine(Loader.ASSEMBLY_LOCATION, "log.txt");
             
-            var successSoundPath = Path.Combine(Loader.ASSEMBLY_LOCATION, Loader.SUCCESS_SOUND_FILE_PATH);
-            var errorSoundPath = Path.Combine(Loader.ASSEMBLY_LOCATION, Loader.ERROR_SOUND_FILE_PATH);
+            var successSoundPath = Path.Combine(Loader.ASSEMBLY_LOCATION, Loader.SUCCESS_SOUND_FILE_PATH ?? string.Empty);
+            var errorSoundPath = Path.Combine(Loader.ASSEMBLY_LOCATION, Loader.ERROR_SOUND_FILE_PATH ?? string.Empty);
             
             Loader.SUCCESS_SOUND_FILE_PATH = File.Exists(successSoundPath) ? successSoundPath : null;
             Loader.ERROR_SOUND_FILE_PATH = File.Exists(errorSoundPath) ? errorSoundPath : null;

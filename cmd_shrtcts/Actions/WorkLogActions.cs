@@ -103,7 +103,7 @@ public static partial class Actions
         }
     }
 
-    private static string GetWorkLogFilePath(string userAppSettingsPath)
+    private static string? GetWorkLogFilePath(string userAppSettingsPath)
     {
         try
         {
