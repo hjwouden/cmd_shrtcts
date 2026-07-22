@@ -105,6 +105,12 @@ namespace cmd_shrtcts
             public List<string>? AdditionalNames { get; set; }
             public string? action { get; set; }
             public string? parameter { get; set; }
+            // Optional per-OS overrides for 'parameter' (e.g. a notes folder that differs on
+            // Mac vs Windows). When the one matching the current OS is set, it wins over
+            // 'parameter'. Supports leading '~' (home) and %VAR% environment expansion.
+            public string? parameterWindows { get; set; }
+            public string? parameterMac { get; set; }
+            public string? parameterLinux { get; set; }
             public string? category { get; set; }
             public string? description { get; set; }
             // Optional browser for OpenWebPage entries: "chrome", "edge", "firefox".
@@ -131,6 +137,40 @@ namespace cmd_shrtcts
             // Normalize path separators if they are hardcoded as \
             string normalizedFileName = fileName.Replace('\\', Path.DirectorySeparatorChar);
             return Path.Combine(Loader.ASSEMBLY_LOCATION, normalizedFileName);
+        }
+
+        // Chooses the parameter appropriate to the current OS: a matching parameterMac/
+        // parameterWindows/parameterLinux wins over the generic 'parameter'. The chosen
+        // OS-specific value is path-expanded (~ and %VAR%); the generic value is returned as-is
+        // for backward compatibility.
+        internal static string? ResolveEffectiveParameter(Root a)
+        {
+            string? osSpecific =
+                OperatingSystem.IsWindows() ? a.parameterWindows :
+                OperatingSystem.IsMacOS() ? a.parameterMac :
+                a.parameterLinux;
+
+            if (!string.IsNullOrWhiteSpace(osSpecific))
+                return ExpandPath(osSpecific);
+
+            return a.parameter;
+        }
+
+        // Expands a leading '~' to the user's home directory and %VAR% environment variables.
+        internal static string ExpandPath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return path;
+
+            string expanded = Environment.ExpandEnvironmentVariables(path);
+
+            if (expanded == "~")
+                expanded = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            else if (expanded.StartsWith("~/") || expanded.StartsWith("~\\"))
+                expanded = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    expanded.Substring(2));
+
+            return expanded;
         }
 
         public static Dictionary<string, Root> LoadActionsDictionary(string[] configFiles)
@@ -192,7 +232,7 @@ namespace cmd_shrtcts
                                 // Store keys in lowercase for case-insensitive lookup
                                 string lowerKey = b.ToLowerInvariant();
                                 actionsDictionary1[lowerKey] = action;
-                                actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = a.parameter, category = a.category, description = a.description, browser = a.browser };
+                                actions[lowerKey] = new Root { AdditionalNames = a.AdditionalNames, action = a.action, parameter = ResolveEffectiveParameter(a), parameterWindows = a.parameterWindows, parameterMac = a.parameterMac, parameterLinux = a.parameterLinux, category = a.category, description = a.description, browser = a.browser };
                             }
                         }
                     }

@@ -19,13 +19,13 @@
   },
   {
     "AdditionalNames": [
-      "note",
-      "sn",
-      "AddNote"
+      "td",
+      "todo",
+      "sn"
     ],
     "action": "AddNote",
     "parameter": "",
-    "description": "sn (StickyNote) — quickly appends text as a todo item to your preconfigured notes file"
+    "description": "td/todo — quickly appends text as a todo item to your preconfigured notes file"
   },
   {
     "AdditionalNames": [ "edit", "EditConfig" ],

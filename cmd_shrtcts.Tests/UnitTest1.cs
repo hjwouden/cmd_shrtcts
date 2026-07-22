@@ -296,4 +296,59 @@
             }
         }
     }
+
+    public class OsAwareParameterTests
+    {
+        [Fact]
+        public void ResolveEffectiveParameter_UsesOsSpecificOverride_WhenPresent()
+        {
+            var root = new Loader.Root
+            {
+                parameter = "/generic/fallback",
+                parameterWindows = "C:\\win\\path",
+                parameterMac = "/mac/path",
+                parameterLinux = "/linux/path"
+            };
+
+            var expected =
+                System.OperatingSystem.IsWindows() ? "C:\\win\\path" :
+                System.OperatingSystem.IsMacOS() ? "/mac/path" :
+                "/linux/path";
+
+            Assert.Equal(expected, Loader.ResolveEffectiveParameter(root));
+        }
+
+        [Fact]
+        public void ResolveEffectiveParameter_FallsBackToGeneric_WhenNoOsOverride()
+        {
+            var root = new Loader.Root { parameter = "/generic/only" };
+            Assert.Equal("/generic/only", Loader.ResolveEffectiveParameter(root));
+        }
+
+        [Fact]
+        public void ResolveEffectiveParameter_GenericIsReturnedVerbatim_NotExpanded()
+        {
+            // The generic parameter is used by non-path actions (URLs, commands), so it must
+            // not be path-expanded.
+            var root = new Loader.Root { parameter = "~/not-a-path-token" };
+            Assert.Equal("~/not-a-path-token", Loader.ResolveEffectiveParameter(root));
+        }
+
+        [Fact]
+        public void ExpandPath_ExpandsLeadingTildeToHome()
+        {
+            var home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+            Assert.Equal(home, Loader.ExpandPath("~"));
+            var expanded = Loader.ExpandPath("~/Documents/notes");
+            Assert.StartsWith(home, expanded);
+            Assert.EndsWith("notes", expanded);
+            Assert.DoesNotContain("~", expanded);
+        }
+
+        [Fact]
+        public void ExpandPath_NonTildePathUnchanged()
+        {
+            Assert.Equal("/absolute/path", Loader.ExpandPath("/absolute/path"));
+        }
+    }
 }
