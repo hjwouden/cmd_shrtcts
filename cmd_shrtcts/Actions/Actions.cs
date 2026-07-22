@@ -627,14 +627,25 @@ namespace cmd_shrtcts
                 File.WriteAllText(filePath, header);
                 Loader.LogText($"QuickNote: Created new file {filePath}");
 
-                // Open the file in Notepad
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                // Open the file in a plain-text editor appropriate to the OS:
+                // Notepad on Windows, TextEdit on macOS, the default editor on Linux.
+                if (OperatingSystem.IsWindows())
                 {
-                    FileName = "notepad.exe",
-                    Arguments = filePath,
-                    UseShellExecute = true
-                };
-                Process.Start(startInfo);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "notepad.exe",
+                        Arguments = filePath,
+                        UseShellExecute = true
+                    });
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    Process.Start("open", new[] { "-a", "TextEdit", filePath });
+                }
+                else // Linux
+                {
+                    Process.Start("xdg-open", filePath);
+                }
 
                 AnsiConsole.MarkupLine($"[green]Opened quick note:[/] {filePath}");
             }
