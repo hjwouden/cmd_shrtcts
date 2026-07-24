@@ -6,6 +6,34 @@ public static partial class Actions
 {
     private static readonly string NoteConfigKey = "NotesFilePath";
 
+    // Resolves a user-entered notes location into a concrete file path:
+    //  - An existing folder (or a path ending in a separator) => a default file placed INSIDE it,
+    //    e.g. "~/Notes/00_Inbox" -> "~/Notes/00_Inbox/notes.md".
+    //  - A path that already has an extension => used as-is (e.g. "todo.md", "list.txt").
+    //  - A path with no extension that isn't a folder => ".md" is appended.
+    // Also expands a leading '~' and %VAR% environment variables.
+    internal static string NormalizeNotesPath(string input, string defaultFileName = "notes.md")
+    {
+        var path = Loader.ExpandPath(input.Trim());
+
+        bool looksLikeDirectory =
+            Directory.Exists(path)
+            || path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar);
+
+        if (looksLikeDirectory)
+        {
+            var trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return Path.Combine(trimmed, defaultFileName);
+        }
+
+        // A file path — give it a .md extension only if it has none.
+        if (string.IsNullOrEmpty(Path.GetExtension(path)))
+            path += ".md";
+
+        return path;
+    }
+
     public static void ConfigureNote(string unused)
     {
         Loader.EnsureUserAppSettingsExists();
@@ -162,11 +190,9 @@ public static partial class Actions
             notesPath = AnsiConsole.Ask<string>("Enter full path to notes file:");
         }
 
-        // Ensure it has .md extension
-        if (!notesPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
-        {
-            notesPath += ".md";
-        }
+        // Resolve folder-vs-file (a folder gets a default notes file placed inside it).
+        notesPath = NormalizeNotesPath(notesPath);
+        AnsiConsole.MarkupLine($"[cyan]Notes file:[/] {notesPath}");
 
         // Save the path to user appsettings
         SaveNotesFilePath(userAppSettingsPath, notesPath);
@@ -191,11 +217,8 @@ public static partial class Actions
             notesPath = AnsiConsole.Ask<string>("Enter full path to notes file:");
         }
 
-        // Ensure it has .md extension
-        if (!notesPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
-        {
-            notesPath += ".md";
-        }
+        // Resolve folder-vs-file (a folder gets a default notes file placed inside it).
+        notesPath = NormalizeNotesPath(notesPath);
 
         SaveNotesFilePath(userAppSettingsPath, notesPath);
         AnsiConsole.MarkupLine($"[green]Notes configured at:[/] {notesPath}");

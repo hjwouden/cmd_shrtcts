@@ -351,4 +351,60 @@
             Assert.Equal("/absolute/path", Loader.ExpandPath("/absolute/path"));
         }
     }
+
+    public class NotesPathNormalizationTests
+    {
+        [Fact]
+        public void NormalizeNotesPath_ExistingFolder_PlacesDefaultFileInside()
+        {
+            var dir = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(), $"cc-notes-{System.Guid.NewGuid():N}");
+            System.IO.Directory.CreateDirectory(dir);
+            try
+            {
+                var result = Actions.NormalizeNotesPath(dir);
+                Assert.Equal(System.IO.Path.Combine(dir, "notes.md"), result);
+            }
+            finally
+            {
+                System.IO.Directory.Delete(dir);
+            }
+        }
+
+        [Fact]
+        public void NormalizeNotesPath_TrailingSeparator_TreatedAsFolder()
+        {
+            var dir = "/some/notes/folder" + System.IO.Path.DirectorySeparatorChar;
+            var result = Actions.NormalizeNotesPath(dir);
+            Assert.Equal(System.IO.Path.Combine("/some/notes/folder", "notes.md"), result);
+        }
+
+        [Fact]
+        public void NormalizeNotesPath_UsesProvidedDefaultFileName()
+        {
+            var dir = "/some/folder" + System.IO.Path.DirectorySeparatorChar;
+            var result = Actions.NormalizeNotesPath(dir, "inbox-todo.md");
+            Assert.Equal(System.IO.Path.Combine("/some/folder", "inbox-todo.md"), result);
+        }
+
+        [Fact]
+        public void NormalizeNotesPath_PathWithMdExtension_Unchanged()
+        {
+            Assert.Equal("/notes/todo.md", Actions.NormalizeNotesPath("/notes/todo.md"));
+        }
+
+        [Fact]
+        public void NormalizeNotesPath_ExplicitNonMdExtension_Respected()
+        {
+            Assert.Equal("/notes/list.txt", Actions.NormalizeNotesPath("/notes/list.txt"));
+        }
+
+        [Fact]
+        public void NormalizeNotesPath_NoExtensionAndNotAFolder_AppendsMd()
+        {
+            // A non-existent path with no extension is treated as a file and gets .md.
+            var result = Actions.NormalizeNotesPath("/notes/brandnewfile");
+            Assert.Equal("/notes/brandnewfile.md", result);
+        }
+    }
 }
