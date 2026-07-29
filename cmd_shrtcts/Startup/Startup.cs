@@ -119,11 +119,14 @@ namespace cmd_shrtcts
 
                 // Show countdown and close the terminal window when running interactively.
                 // Skip for "system" category actions (config wizards, menus) — those are
-                // run from the user's own terminal, not a launcher-opened one.
-                bool isSystemAction = Loader.actionsDictionary?.TryGetValue(normalizedValue, out var root) == true
-                    && string.Equals(root?.category, "system", StringComparison.OrdinalIgnoreCase);
+                // run from the user's own terminal, not a launcher-opened one — and for actions
+                // that open their own persistent window (closing the front window would close it).
+                Loader.Root? root = null;
+                Loader.actionsDictionary?.TryGetValue(normalizedValue, out root);
+                bool isSystemAction = string.Equals(root?.category, "system", StringComparison.OrdinalIgnoreCase);
+                bool opensOwnWindow = root?.action is "OpenCMDPersistent" or "OpenCMDAtLocation";
 
-                if (!Console.IsOutputRedirected && !isSystemAction)
+                if (!Console.IsOutputRedirected && !isSystemAction && !opensOwnWindow)
                     Actions.ShowLauncherCountdownAndClose();
             }
             else

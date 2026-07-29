@@ -591,14 +591,38 @@ namespace cmd_shrtcts
         {
             try
             {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.UseShellExecute = true;
-                // Use /K to run command and keep window open (instead of /C which closes)
-                process.StartInfo.Arguments = $"/K {cmd}";
-                process.Start();
+                if (OperatingSystem.IsWindows())
+                {
+                    System.Diagnostics.Process process = new System.Diagnostics.Process();
+                    process.StartInfo.FileName = "cmd.exe";
+                    process.StartInfo.UseShellExecute = true;
+                    // Use /K to run command and keep window open (instead of /C which closes)
+                    process.StartInfo.Arguments = $"/K {cmd}";
+                    process.Start();
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    // Run in a new Terminal.app window via `do script`; the interactive shell
+                    // remains after the command finishes, so the window stays open.
+                    var escaped = cmd.Replace("\\", "\\\\").Replace("\"", "\\\"");
+                    var psi = new ProcessStartInfo("osascript") { UseShellExecute = false, CreateNoWindow = true };
+                    psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("tell application \"Terminal\"");
+                    psi.ArgumentList.Add("-e"); psi.ArgumentList.Add($"do script \"{escaped}\"");
+                    psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("activate");
+                    psi.ArgumentList.Add("-e"); psi.ArgumentList.Add("end tell");
+                    Process.Start(psi);
+                }
+                else // Linux
+                {
+                    // `exec bash` keeps the terminal open after the command completes.
+                    Process.Start(new ProcessStartInfo("x-terminal-emulator")
+                    {
+                        Arguments = $"-e bash -c \"{cmd}; exec bash\"",
+                        UseShellExecute = false
+                    });
+                }
 
-                Loader.LogText($"OpenCMDPersistent: Opened persistent command prompt with: {cmd}");
+                Loader.LogText($"OpenCMDPersistent: Opened persistent command window with: {cmd}");
             }
             catch (Exception ex)
             {
