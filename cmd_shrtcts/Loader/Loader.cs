@@ -330,6 +330,21 @@ namespace cmd_shrtcts
                 case "ConfigureWorkLog":
                     action = (parameter) => Actions.ConfigureWorkLog(parameter.ToString() ?? string.Empty);
                     return true;
+                case "StartTimer":
+                    action = (parameter) => Actions.StartTimer(parameter.ToString());
+                    return true;
+                case "ViewTimerHistory":
+                    action = (parameter) => Actions.ViewTimerHistory(parameter.ToString());
+                    return true;
+                case "ConfigureTimer":
+                    action = (parameter) => Actions.ConfigureTimer(parameter.ToString());
+                    return true;
+                case "ShowHelp":
+                    action = (parameter) => Actions.ShowHelp(parameter.ToString());
+                    return true;
+                case "ShowDocs":
+                    action = (parameter) => Actions.ShowDocs(parameter.ToString());
+                    return true;
                 default:
                     action = null;
                     return false;

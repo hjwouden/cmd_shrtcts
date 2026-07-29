@@ -1,9 +1,17 @@
 ﻿[
   {
-    "AdditionalNames": [ "help" ],
-    "action": "OpenCMD",
-    "parameter": "sc list",
-    "description": "Print all available shortcuts to the console"
+    "AdditionalNames": [ "help", "ShowHelp" ],
+    "action": "ShowHelp",
+    "parameter": "",
+    "category": "system",
+    "description": "Show a formatted reference card of all built-in commands"
+  },
+  {
+    "AdditionalNames": [ "docs", "ShowDocs" ],
+    "action": "ShowDocs",
+    "parameter": "",
+    "category": "system",
+    "description": "Browse detailed guides for built-in features (timer, notes, work log, etc.)"
   },
   {
     "AdditionalNames": [ "list" ],
@@ -150,5 +158,24 @@
     "parameter": "",
     "category": "system",
     "description": "Set the file path where work log entries are saved"
+  },
+  {
+    "AdditionalNames": [ "timer", "t", "StartTimer" ],
+    "action": "StartTimer",
+    "parameter": "",
+    "description": "timer — set a goal, start a focused countdown, and log the outcome"
+  },
+  {
+    "AdditionalNames": [ "timerhistory", "th", "ViewTimerHistory" ],
+    "action": "ViewTimerHistory",
+    "parameter": "",
+    "description": "View a table of your completed and abandoned goals"
+  },
+  {
+    "AdditionalNames": [ "configuretimer", "ctimer", "ConfigureTimer" ],
+    "action": "ConfigureTimer",
+    "parameter": "",
+    "category": "system",
+    "description": "Set the file path where timer goal history is saved"
   }
 ]

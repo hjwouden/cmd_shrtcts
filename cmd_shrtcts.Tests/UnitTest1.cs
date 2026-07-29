@@ -66,6 +66,11 @@
         [InlineData("ToggleQuotes")]
         [InlineData("AddWorkLog")]
         [InlineData("ConfigureWorkLog")]
+        [InlineData("StartTimer")]
+        [InlineData("ViewTimerHistory")]
+        [InlineData("ConfigureTimer")]
+        [InlineData("ShowHelp")]
+        [InlineData("ShowDocs")]
         public void AllConfigActions_HaveDelegates_Defined(string actionName)
         {
             // Arrange & Act
@@ -194,6 +199,11 @@
         [InlineData("ToggleQuotes")]
         [InlineData("AddWorkLog")]
         [InlineData("ConfigureWorkLog")]
+        [InlineData("StartTimer")]
+        [InlineData("ViewTimerHistory")]
+        [InlineData("ConfigureTimer")]
+        [InlineData("ShowHelp")]
+        [InlineData("ShowDocs")]
         public void AllRegisteredActions_HaveDelegates(string actionName)
         {
             // Act
