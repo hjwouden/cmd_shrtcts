@@ -331,19 +331,22 @@ namespace cmd_shrtcts
                     action = (parameter) => Actions.ConfigureWorkLog(parameter.ToString() ?? string.Empty);
                     return true;
                 case "StartTimer":
-                    action = (parameter) => Actions.StartTimer(parameter.ToString());
+                    action = (parameter) => Actions.StartTimer(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ViewTimerHistory":
-                    action = (parameter) => Actions.ViewTimerHistory(parameter.ToString());
+                    action = (parameter) => Actions.ViewTimerHistory(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ConfigureTimer":
-                    action = (parameter) => Actions.ConfigureTimer(parameter.ToString());
+                    action = (parameter) => Actions.ConfigureTimer(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ShowHelp":
-                    action = (parameter) => Actions.ShowHelp(parameter.ToString());
+                    action = (parameter) => Actions.ShowHelp(parameter.ToString() ?? string.Empty);
                     return true;
                 case "ShowDocs":
-                    action = (parameter) => Actions.ShowDocs(parameter.ToString());
+                    action = (parameter) => Actions.ShowDocs(parameter.ToString() ?? string.Empty);
+                    return true;
+                case "ConfigureCloseTimeout":
+                    action = (parameter) => Actions.ConfigureCloseTimeout(parameter.ToString() ?? string.Empty);
                     return true;
                 default:
                     action = null;

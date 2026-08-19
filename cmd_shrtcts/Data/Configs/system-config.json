@@ -177,5 +177,12 @@
     "parameter": "",
     "category": "system",
     "description": "Set the file path where timer goal history is saved"
+  },
+  {
+    "AdditionalNames": [ "closetimeout", "windowtimeout", "ConfigureCloseTimeout" ],
+    "action": "ConfigureCloseTimeout",
+    "parameter": "",
+    "category": "system",
+    "description": "Set how many seconds a launcher window counts down before closing"
   }
 ]

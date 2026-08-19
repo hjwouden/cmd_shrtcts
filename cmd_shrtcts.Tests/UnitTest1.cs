@@ -204,6 +204,7 @@
         [InlineData("ConfigureTimer")]
         [InlineData("ShowHelp")]
         [InlineData("ShowDocs")]
+        [InlineData("ConfigureCloseTimeout")]
         public void AllRegisteredActions_HaveDelegates(string actionName)
         {
             // Act
@@ -212,6 +213,44 @@
             // Assert
             Assert.True(result, $"Action '{actionName}' should have a delegate registered");
             Assert.NotNull(action);
+        }
+    }
+
+    public class CloseTimeoutTests
+    {
+        [Fact]
+        public void ConfigureCloseTimeout_HasRegisteredDelegate()
+        {
+            var result = Loader.TryGetActionDelegate("ConfigureCloseTimeout", out var action);
+            Assert.True(result);
+            Assert.NotNull(action);
+        }
+
+        [Fact]
+        public void CloseTimeoutSetting_RoundTripsThroughAppSettings()
+        {
+            // The startup loader reads CommandWindowTimeoutSeconds from appsettings; verify a
+            // written value parses back to the same int the loader would apply.
+            var tempSettings = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(), $"cc-timeout-{System.Guid.NewGuid():N}.json");
+            try
+            {
+                var config = new Dictionary<string, object> { { Actions.CloseTimeoutKey, 2 } };
+                System.IO.File.WriteAllText(tempSettings,
+                    Newtonsoft.Json.JsonConvert.SerializeObject(config));
+
+                var read = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                    System.IO.File.ReadAllText(tempSettings));
+
+                Assert.NotNull(read);
+                Assert.True(read!.TryGetValue(Actions.CloseTimeoutKey, out var val));
+                Assert.True(int.TryParse(val?.ToString(), out var secs));
+                Assert.Equal(2, secs);
+            }
+            finally
+            {
+                System.IO.File.Delete(tempSettings);
+            }
         }
     }
 

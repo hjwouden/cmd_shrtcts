@@ -84,6 +84,13 @@ namespace cmd_shrtcts
                 {
                     Loader.QUOTES_ENABLED = quotesEnabled;
                 }
+
+                if (config.TryGetValue(Actions.CloseTimeoutKey, out var timeoutVal)
+                    && int.TryParse(timeoutVal?.ToString(), out var timeoutSecs)
+                    && timeoutSecs >= 0)
+                {
+                    Loader.COMMAND_WINDOW_TIMEOUT_SECONDS = timeoutSecs;
+                }
             }
             catch (Exception ex)
             {
