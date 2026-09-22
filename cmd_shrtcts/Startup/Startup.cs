@@ -131,7 +131,7 @@ namespace cmd_shrtcts
                 Loader.Root? root = null;
                 Loader.actionsDictionary?.TryGetValue(normalizedValue, out root);
                 bool isSystemAction = string.Equals(root?.category, "system", StringComparison.OrdinalIgnoreCase);
-                bool opensOwnWindow = root?.action is "OpenCMDPersistent" or "OpenCMDAtLocation";
+                bool opensOwnWindow = root?.action is "OpenCMDPersistent" or "OpenCMDAtLocation" or "OpenPowerShellPersistent" or "OpenPowerShellAtLocation";
 
                 if (!Console.IsOutputRedirected && !isSystemAction && !opensOwnWindow)
                     Actions.ShowLauncherCountdownAndClose();

@@ -82,7 +82,9 @@ public static partial class Actions
         var actionTypes = new[]
         {
             "OpenWebPage", "OpenCMD", "OpenCMDPersistent", "PutTextOnClipboard",
-            "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation", "QuickNote", "AddNote"
+            "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation",
+            "OpenPowerShell", "OpenPowerShellPersistent", "OpenPowerShellWithParams", "OpenPowerShellAtLocation",
+            "QuickNote", "AddNote"
         };
         var keepLabel = $"Keep current ({entry.action})";
         var newAction = AnsiConsole.Prompt(

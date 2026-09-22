@@ -300,6 +300,18 @@ namespace cmd_shrtcts
                 case "OpenCMDPersistent":
                     action = (parameter) => Actions.OpenCMDPersistent(parameter.ToString() ?? string.Empty);
                     return true;
+                case "OpenPowerShell":
+                    action = (parameter) => Actions.OpenPowerShell(parameter.ToString() ?? string.Empty);
+                    return true;
+                case "OpenPowerShellWithParams":
+                    action = (parameter) => Actions.OpenPowerShellWithParams(parameter.ToString()!.Split(',')[0], parameter.ToString()!.Split(',')[1]);
+                    return true;
+                case "OpenPowerShellAtLocation":
+                    action = (parameter) => Actions.OpenPowerShellAtLocation(parameter.ToString() ?? string.Empty);
+                    return true;
+                case "OpenPowerShellPersistent":
+                    action = (parameter) => Actions.OpenPowerShellPersistent(parameter.ToString() ?? string.Empty);
+                    return true;
                 case "QuickNote":
                     action = (parameter) => Actions.QuickNote(parameter.ToString() ?? string.Empty);
                     return true;

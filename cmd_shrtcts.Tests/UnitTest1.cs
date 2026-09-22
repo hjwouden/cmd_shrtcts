@@ -71,6 +71,9 @@
         [InlineData("ConfigureTimer")]
         [InlineData("ShowHelp")]
         [InlineData("ShowDocs")]
+        [InlineData("OpenPowerShell")]
+        [InlineData("OpenPowerShellPersistent")]
+        [InlineData("OpenPowerShellAtLocation")]
         public void AllConfigActions_HaveDelegates_Defined(string actionName)
         {
             // Arrange & Act
@@ -205,6 +208,10 @@
         [InlineData("ShowHelp")]
         [InlineData("ShowDocs")]
         [InlineData("ConfigureCloseTimeout")]
+        [InlineData("OpenPowerShell")]
+        [InlineData("OpenPowerShellWithParams")]
+        [InlineData("OpenPowerShellAtLocation")]
+        [InlineData("OpenPowerShellPersistent")]
         public void AllRegisteredActions_HaveDelegates(string actionName)
         {
             // Act

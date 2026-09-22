@@ -343,7 +343,7 @@ namespace cmd_shrtcts
                     .MoreChoicesText("Move up and down to reveal more choices")
                     .AddChoices(new[]
                     {
-                        "OpenWebPage", "OpenCMD", "OpenCMDPersistent", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation", "QuickNote", "AddNote"
+                        "OpenWebPage", "OpenCMD", "OpenCMDPersistent", "PutTextOnClipboard", "OpenFile", "OpenCMDWithParams", "OpenCMDAtLocation", "OpenPowerShell", "OpenPowerShellPersistent", "OpenPowerShellWithParams", "OpenPowerShellAtLocation", "QuickNote", "AddNote"
                     })
             );
 
@@ -391,6 +391,29 @@ namespace cmd_shrtcts
                     break;
 
                 case "OpenCMDAtLocation":
+                    Console.WriteLine("Enter the directory path:");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenPowerShell":
+                    Console.WriteLine("Enter the command (e.g., Get-ChildItem, cc menu, etc):");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenPowerShellPersistent":
+                    Console.WriteLine("Enter the command to run (e.g., python file.py, node app.js, etc):");
+                    parameter = Console.ReadLine();
+                    break;
+
+                case "OpenPowerShellWithParams":
+                    Console.WriteLine("Enter the command:");
+                    var psCmd = Console.ReadLine();
+                    Console.WriteLine("Enter the parameter/password:");
+                    var psParam = Console.ReadLine();
+                    parameter = $"{psCmd},{psParam}";
+                    break;
+
+                case "OpenPowerShellAtLocation":
                     Console.WriteLine("Enter the directory path:");
                     parameter = Console.ReadLine();
                     break;
@@ -628,6 +651,104 @@ namespace cmd_shrtcts
             {
                 AnsiConsole.MarkupLine($"[red]Error opening command prompt:[/] {ex.Message}");
                 Loader.LogText($"OpenCMDPersistent: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Opens a PowerShell window and closes after specified timeout
+        /// </summary>
+        public static void OpenPowerShell(string cmd)
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = "powershell.exe";
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.Arguments = $"-NoLogo -Command \"{cmd}; Start-Sleep -Seconds {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}\"";
+                process.Start();
+            }
+            else
+            {
+                // pwsh (PowerShell Core) is the cross-platform equivalent on macOS/Linux
+                Process.Start(new ProcessStartInfo("pwsh")
+                {
+                    Arguments = $"-NoLogo -Command \"{cmd}; Start-Sleep -Seconds {Loader.COMMAND_WINDOW_TIMEOUT_SECONDS}\"",
+                    UseShellExecute = false
+                });
+            }
+        }
+
+        public static void OpenPowerShellWithParams(string cmd, string param)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = OperatingSystem.IsWindows() ? "powershell.exe" : "pwsh",
+                Arguments = "-NoLogo -Command -",
+                RedirectStandardInput = true,
+                UseShellExecute = false
+            };
+
+            Process psProcess = new Process
+            {
+                StartInfo = startInfo
+            };
+
+            psProcess.Start();
+
+            psProcess.StandardInput.WriteLine(cmd);
+            psProcess.StandardInput.WriteLine(param);
+            psProcess.StandardInput.Flush();
+
+            psProcess.WaitForExit();
+            psProcess.Close();
+        }
+
+        public static void OpenPowerShellAtLocation(string directoryPath)
+        {
+            try
+            {
+                if (!Directory.Exists(directoryPath))
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: Directory not found:[/] {directoryPath}");
+                    Loader.LogText($"OpenPowerShellAtLocation: Directory not found - {directoryPath}");
+                    return;
+                }
+
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = OperatingSystem.IsWindows() ? "powershell.exe" : "pwsh",
+                    Arguments = $"-NoExit -Command \"Set-Location -LiteralPath '{directoryPath}'\"",
+                    UseShellExecute = OperatingSystem.IsWindows()
+                };
+                Process.Start(startInfo);
+
+                Loader.LogText($"OpenPowerShellAtLocation: Opened PowerShell at {directoryPath}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error opening PowerShell:[/] {ex.Message}");
+                Loader.LogText($"OpenPowerShellAtLocation: {ex}");
+            }
+        }
+
+        public static void OpenPowerShellPersistent(string cmd)
+        {
+            try
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = OperatingSystem.IsWindows() ? "powershell.exe" : "pwsh",
+                    Arguments = $"-NoExit -Command \"{cmd}\"",
+                    UseShellExecute = OperatingSystem.IsWindows()
+                };
+                Process.Start(startInfo);
+
+                Loader.LogText($"OpenPowerShellPersistent: Opened persistent PowerShell window with: {cmd}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error opening PowerShell:[/] {ex.Message}");
+                Loader.LogText($"OpenPowerShellPersistent: {ex}");
             }
         }
 

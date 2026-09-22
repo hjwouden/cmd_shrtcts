@@ -45,7 +45,7 @@ Program.Main(args)
 - `TryGetActionDelegate` is the registry that maps action type name strings (e.g. `"OpenWebPage"`) to delegates. **Adding a new action type requires a new case here.**
 
 **`Actions`** is a `static partial` class split across three files:
-- `Actions.cs` — core actions: `OpenWebPage`, `OpenCMD`, `OpenCMDAtLocation`, `OpenCMDPersistent`, `OpenCMDWithParams`, `OpenFile`, `TextToClipboard`, `AddToConfig`, `ListActions`, `SelectMenu`, `PlaySound`, `DisplayRandomQuote`, `QuickNote`
+- `Actions.cs` — core actions: `OpenWebPage`, `OpenCMD`, `OpenCMDAtLocation`, `OpenCMDPersistent`, `OpenCMDWithParams`, `OpenPowerShell`, `OpenPowerShellAtLocation`, `OpenPowerShellPersistent`, `OpenPowerShellWithParams`, `OpenFile`, `TextToClipboard`, `AddToConfig`, `ListActions`, `SelectMenu`, `PlaySound`, `DisplayRandomQuote`, `QuickNote`
 - `ConfigActions.cs` — `RemoveFromConfig`, `RemoveConfigPath`
 - `NoteActions.cs` — `AddNote`, `ConfigureNote`
 - `AppSettingsActions.cs` — `SetConfigPath`
@@ -80,6 +80,10 @@ If `parameter` is `"prompt"` in a config entry, the tool will ask for user input
 | `OpenCMDPersistent` | Runs command in a new cmd window, stays open (`/K`) |
 | `OpenCMDWithParams` | Pipes a command + second input (e.g. password) via stdin |
 | `OpenCMDAtLocation` | Opens a terminal window at a specified directory |
+| `OpenPowerShell` | Runs command in a new PowerShell window, auto-closes after timeout |
+| `OpenPowerShellPersistent` | Runs command in a new PowerShell window, stays open (`-NoExit`) |
+| `OpenPowerShellWithParams` | Pipes a command + second input (e.g. password) via stdin, in PowerShell |
+| `OpenPowerShellAtLocation` | Opens a PowerShell window at a specified directory |
 | `OpenFile` | Opens a file with its default associated application |
 | `PutTextOnClipboard` | Copies contents of a text file to clipboard |
 | `AddToConfig` | Interactive wizard to add a new shortcut |
