@@ -56,7 +56,7 @@
       "SetConfigPath"
     ],
     "action": "SetConfigPath",
-    "parameter": "prompt",
+    "parameter": "",
     "category": "system",
     "description": "Register an additional config file to load shortcuts from"
   },

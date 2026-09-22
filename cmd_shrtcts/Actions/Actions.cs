@@ -239,7 +239,7 @@ namespace cmd_shrtcts
             {
                 if (!Loader.TryGetParameterFromJson(normalizedSelection, out object? parameter) || parameter?.ToString() == "prompt")
                 {
-                    LogText("Enter a parameter:");
+                    Console.WriteLine("Enter a parameter:");
                     parameter = Console.ReadLine();
                 }
                 action!.Invoke(parameter ?? string.Empty);

@@ -115,7 +115,7 @@ namespace cmd_shrtcts
             {
                 if (!Loader.TryGetParameterFromJson(normalizedValue, out object? parameter) || (parameter as string) == "prompt")
                 {
-                    Loader.LogText("Enter a parameter:");
+                    Console.WriteLine("Enter a parameter:");
                     parameter = Console.ReadLine() ?? string.Empty;
                 }
 
