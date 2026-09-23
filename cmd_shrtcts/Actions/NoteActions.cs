@@ -171,6 +171,216 @@ public static partial class Actions
         return null;
     }
 
+    private static readonly string QuickNoteFolderConfigKey = "QuickNoteFolderPath";
+    private static readonly string QuickNoteEditorConfigKey = "QuickNoteEditor";
+
+    public static void ConfigureQuickNote(string unused)
+    {
+        Loader.EnsureUserAppSettingsExists();
+
+        var userAppSettingsPath = Loader.GetUserAppSettingsPath();
+        var currentFolder = GetQuickNoteFolderPath(userAppSettingsPath);
+        var currentEditor = GetQuickNoteEditor(userAppSettingsPath);
+
+        Console.WriteLine("");
+        AnsiConsole.MarkupLine(string.IsNullOrWhiteSpace(currentFolder)
+            ? "[yellow]No quick note folder configured yet.[/]"
+            : $"[cyan]Current quick note folder:[/] {currentFolder}");
+        AnsiConsole.MarkupLine($"[cyan]Current editor:[/] {DisplayEditorName(currentEditor)}");
+        Console.WriteLine("");
+
+        var choices = new List<string> { "Set folder location", "Set editor" };
+        if (!string.IsNullOrWhiteSpace(currentFolder))
+            choices.Add("Clear folder location");
+        choices.Add("Cancel");
+
+        var choice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("What would you like to do?")
+                .PageSize(10)
+                .AddChoices(choices)
+        );
+
+        switch (choice)
+        {
+            case "Set folder location":
+                PromptAndSetQuickNoteFolderPath(userAppSettingsPath);
+                break;
+
+            case "Set editor":
+                var newEditor = PromptForEditor(currentEditor);
+                SaveQuickNoteEditor(userAppSettingsPath, newEditor);
+                AnsiConsole.MarkupLine($"[green]Quick note editor set to:[/] {DisplayEditorName(newEditor)}");
+                break;
+
+            case "Clear folder location":
+                ClearQuickNoteFolderPath(userAppSettingsPath);
+                AnsiConsole.MarkupLine("[green]Quick note folder cleared.[/]");
+                break;
+
+            case "Cancel":
+                AnsiConsole.MarkupLine("[grey]Cancelled.[/]");
+                break;
+        }
+    }
+
+    private static string? GetQuickNoteFolderPath(string userAppSettingsPath)
+    {
+        try
+        {
+            if (!File.Exists(userAppSettingsPath))
+            {
+                return null;
+            }
+
+            var json = File.ReadAllText(userAppSettingsPath);
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            if (config != null && config.TryGetValue(QuickNoteFolderConfigKey, out var value))
+            {
+                return value?.ToString();
+            }
+        }
+        catch
+        {
+            // Silently fail if config can't be read
+        }
+
+        return null;
+    }
+
+    private static string? GetQuickNoteEditor(string userAppSettingsPath)
+    {
+        try
+        {
+            if (!File.Exists(userAppSettingsPath))
+            {
+                return null;
+            }
+
+            var json = File.ReadAllText(userAppSettingsPath);
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            if (config != null && config.TryGetValue(QuickNoteEditorConfigKey, out var value))
+            {
+                return value?.ToString();
+            }
+        }
+        catch
+        {
+            // Silently fail if config can't be read
+        }
+
+        return null;
+    }
+
+    private static string PromptForQuickNoteFolderPath(string userAppSettingsPath)
+    {
+        var defaultPath = Path.Combine(Loader.GetUserDataDirectory(), "QuickNotes");
+
+        AnsiConsole.MarkupLine("[yellow]No quick note folder configured.[/]");
+        AnsiConsole.MarkupLine($"[cyan]Default location: {defaultPath}[/]");
+
+        var useDefault = AnsiConsole.Confirm("Use default location?", defaultValue: true);
+        var folderPath = useDefault
+            ? defaultPath
+            : Loader.ExpandPath(AnsiConsole.Ask<string>("Enter folder path for quick notes:").Trim());
+
+        SaveQuickNoteFolderPath(userAppSettingsPath, folderPath);
+        AnsiConsole.MarkupLine($"[cyan]Quick notes folder:[/] {folderPath}");
+
+        return folderPath;
+    }
+
+    private static void PromptAndSetQuickNoteFolderPath(string userAppSettingsPath)
+    {
+        var defaultPath = Path.Combine(Loader.GetUserDataDirectory(), "QuickNotes");
+
+        AnsiConsole.MarkupLine($"[cyan]Default location: {defaultPath}[/]");
+        var useDefault = AnsiConsole.Confirm("Use default location?", defaultValue: true);
+        var folderPath = useDefault
+            ? defaultPath
+            : Loader.ExpandPath(AnsiConsole.Ask<string>("Enter folder path for quick notes:").Trim());
+
+        SaveQuickNoteFolderPath(userAppSettingsPath, folderPath);
+        AnsiConsole.MarkupLine($"[green]Quick notes will be saved to:[/] {folderPath}");
+    }
+
+    private static void SaveQuickNoteFolderPath(string userAppSettingsPath, string folderPath)
+    {
+        try
+        {
+            var config = new Dictionary<string, object>();
+
+            if (File.Exists(userAppSettingsPath))
+            {
+                var json = File.ReadAllText(userAppSettingsPath);
+                config = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json)
+                    ?? new Dictionary<string, object>();
+            }
+            config[QuickNoteFolderConfigKey] = folderPath;
+
+            var updatedJson = Newtonsoft.Json.JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(userAppSettingsPath, updatedJson);
+        }
+        catch (Exception ex)
+        {
+            Loader.LogText($"Error saving quick note folder path to config: {ex}");
+        }
+    }
+
+    private static void SaveQuickNoteEditor(string userAppSettingsPath, string? editor)
+    {
+        try
+        {
+            var config = new Dictionary<string, object>();
+
+            if (File.Exists(userAppSettingsPath))
+            {
+                var json = File.ReadAllText(userAppSettingsPath);
+                config = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json)
+                    ?? new Dictionary<string, object>();
+            }
+
+            if (string.IsNullOrEmpty(editor))
+                config.Remove(QuickNoteEditorConfigKey);
+            else
+                config[QuickNoteEditorConfigKey] = editor;
+
+            var updatedJson = Newtonsoft.Json.JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(userAppSettingsPath, updatedJson);
+        }
+        catch (Exception ex)
+        {
+            Loader.LogText($"Error saving quick note editor to config: {ex}");
+        }
+    }
+
+    private static void ClearQuickNoteFolderPath(string userAppSettingsPath)
+    {
+        try
+        {
+            if (!File.Exists(userAppSettingsPath))
+            {
+                return;
+            }
+
+            var json = File.ReadAllText(userAppSettingsPath);
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            if (config != null && config.ContainsKey(QuickNoteFolderConfigKey))
+            {
+                config.Remove(QuickNoteFolderConfigKey);
+                var updatedJson = Newtonsoft.Json.JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(userAppSettingsPath, updatedJson);
+            }
+        }
+        catch (Exception ex)
+        {
+            Loader.LogText($"Error clearing quick note folder path from config: {ex}");
+        }
+    }
+
     private static string PromptForNotesFilePath(string userAppSettingsPath)
     {
         var defaultPath = Path.Combine(Loader.GetUserDataDirectory(), "notes.md");

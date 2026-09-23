@@ -36,6 +36,16 @@
     "description": "td/todo — quickly appends text as a todo item to your preconfigured notes file"
   },
   {
+    "AdditionalNames": [
+      "note",
+      "quicknote",
+      "qn"
+    ],
+    "action": "QuickNote",
+    "parameter": "",
+    "description": "note/qn — creates a new dated note file and opens it in your configured editor"
+  },
+  {
     "AdditionalNames": [ "edit", "EditConfig" ],
     "action": "EditConfig",
     "parameter": "",
@@ -93,6 +103,17 @@
     "parameter": "",
     "category": "system",
     "description": "Set the file path where notes are saved when created"
+  },
+  {
+    "AdditionalNames": [
+      "configurequicknote",
+      "configure-quicknote",
+      "cqn"
+    ],
+    "action": "ConfigureQuickNote",
+    "parameter": "",
+    "category": "system",
+    "description": "Set the folder and editor (Notepad/Notepad++/VS Code) used by 'cc note'"
   },
   {
     "AdditionalNames": [

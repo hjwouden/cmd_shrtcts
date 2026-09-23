@@ -134,6 +134,51 @@ namespace cmd_shrtcts
             _ => null,
         };
 
+        // Normalizes a user-supplied Windows text editor choice; null means Notepad (the default).
+        internal static string? NormalizeEditor(string? editor) => editor?.Trim().ToLowerInvariant() switch
+        {
+            "notepad++" or "notepadplusplus" => "notepad++",
+            "vscode" or "code" or "visual studio code" => "vscode",
+            _ => null,
+        };
+
+        // Windows executable/command used to open a quick note; null means Notepad (the default).
+        internal static string? WindowsEditorExecutable(string? editor) => NormalizeEditor(editor) switch
+        {
+            "notepad++" => "notepad++.exe",
+            "vscode" => "code",
+            _ => null,
+        };
+
+        // Interactive picker for the editor a quick note should open in (Windows only).
+        private static string? PromptForEditor(string? current)
+        {
+            const string notepad = "Notepad (default)";
+            const string notepadPlusPlus = "Notepad++";
+            const string vscode = "VS Code";
+
+            var normalized = NormalizeEditor(current);
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[green]Open quick notes in which editor?[/] [grey](Windows only)[/]")
+                    .AddChoices(new[] { notepad, notepadPlusPlus, vscode }));
+
+            return choice switch
+            {
+                notepadPlusPlus => "notepad++",
+                vscode => "vscode",
+                _ => null,
+            };
+        }
+
+        // Displays a normalized editor token back as a user-facing name.
+        internal static string DisplayEditorName(string? editor) => NormalizeEditor(editor) switch
+        {
+            "notepad++" => "Notepad++",
+            "vscode" => "VS Code",
+            _ => "Notepad (default)",
+        };
+
 
         private record MenuEntry(string Key, string Display);
 
@@ -419,7 +464,7 @@ namespace cmd_shrtcts
                     break;
 
                 case "QuickNote":
-                    Console.WriteLine("Enter the folder path where notes will be saved:");
+                    Console.WriteLine("Enter a folder path to pin this shortcut to (leave blank to use your configured quick-note settings — see 'cc cqn'):");
                     parameter = Console.ReadLine();
                     break;
 
@@ -752,10 +797,30 @@ namespace cmd_shrtcts
             }
         }
 
-        public static void QuickNote(string folderPath)
+        // folderPathOverride, when non-empty, takes precedence over the configured quick-note
+        // folder (set via ConfigureQuickNote / "cc cqn") — this lets an individual shortcut
+        // entry pin its own folder while leaving the global default for everyone else.
+        public static void QuickNote(string folderPathOverride)
         {
             try
             {
+                Loader.EnsureUserAppSettingsExists();
+                var userAppSettingsPath = Loader.GetUserAppSettingsPath();
+
+                var folderPath = string.IsNullOrWhiteSpace(folderPathOverride)
+                    ? GetQuickNoteFolderPath(userAppSettingsPath)
+                    : Loader.ExpandPath(folderPathOverride);
+
+                if (string.IsNullOrWhiteSpace(folderPath))
+                {
+                    folderPath = PromptForQuickNoteFolderPath(userAppSettingsPath);
+                    if (string.IsNullOrWhiteSpace(folderPath))
+                    {
+                        AnsiConsole.MarkupLine("[red]No folder path provided. Cancelled.[/]");
+                        return;
+                    }
+                }
+
                 // Ensure the folder exists
                 if (!Directory.Exists(folderPath))
                 {
@@ -772,25 +837,7 @@ namespace cmd_shrtcts
                 File.WriteAllText(filePath, header);
                 Loader.LogText($"QuickNote: Created new file {filePath}");
 
-                // Open the file in a plain-text editor appropriate to the OS:
-                // Notepad on Windows, TextEdit on macOS, the default editor on Linux.
-                if (OperatingSystem.IsWindows())
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "notepad.exe",
-                        Arguments = filePath,
-                        UseShellExecute = true
-                    });
-                }
-                else if (OperatingSystem.IsMacOS())
-                {
-                    Process.Start("open", new[] { "-a", "TextEdit", filePath });
-                }
-                else // Linux
-                {
-                    Process.Start("xdg-open", filePath);
-                }
+                OpenQuickNoteFile(filePath, userAppSettingsPath);
 
                 AnsiConsole.MarkupLine($"[green]Opened quick note:[/] {filePath}");
             }
@@ -798,6 +845,45 @@ namespace cmd_shrtcts
             {
                 AnsiConsole.MarkupLine($"[red]Error creating quick note:[/] {ex.Message}");
                 Loader.LogText($"QuickNote: {ex}");
+            }
+        }
+
+        // Opens the note in a plain-text editor appropriate to the OS: the user's configured
+        // editor (Notepad/Notepad++/VS Code) on Windows, TextEdit on macOS, the default editor
+        // on Linux. Falls back to Notepad if the configured Windows editor isn't installed.
+        private static void OpenQuickNoteFile(string filePath, string userAppSettingsPath)
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                var editor = GetQuickNoteEditor(userAppSettingsPath);
+                var exe = WindowsEditorExecutable(editor) ?? "notepad.exe";
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = exe,
+                        Arguments = $"\"{filePath}\"",
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Loader.LogText($"QuickNote: could not launch editor '{editor}' ({exe}): {ex.Message}. Falling back to Notepad.");
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "notepad.exe",
+                        Arguments = $"\"{filePath}\"",
+                        UseShellExecute = true
+                    });
+                }
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                Process.Start("open", new[] { "-a", "TextEdit", filePath });
+            }
+            else // Linux
+            {
+                Process.Start("xdg-open", filePath);
             }
         }
 

@@ -132,8 +132,13 @@ namespace cmd_shrtcts
                 Loader.actionsDictionary?.TryGetValue(normalizedValue, out root);
                 bool isSystemAction = string.Equals(root?.category, "system", StringComparison.OrdinalIgnoreCase);
                 bool opensOwnWindow = root?.action is "OpenCMDPersistent" or "OpenCMDAtLocation" or "OpenPowerShellPersistent" or "OpenPowerShellAtLocation";
+                // These are tagged "system" only to keep them out of the main cc menu tier —
+                // unlike the config wizards, they produce quick, read-only (or one-line) output
+                // meant to be glanced at from a launcher-opened window, so they still need the
+                // closing countdown rather than exiting the instant they finish.
+                bool isQuickOutputDespiteSystemCategory = root?.action is "ShowHelp" or "ShowDocs" or "ToggleQuotes";
 
-                if (!Console.IsOutputRedirected && !isSystemAction && !opensOwnWindow)
+                if (!Console.IsOutputRedirected && !opensOwnWindow && (!isSystemAction || isQuickOutputDespiteSystemCategory))
                     Actions.ShowLauncherCountdownAndClose();
             }
             else

@@ -44,11 +44,23 @@ Program.Main(args)
 - `actionsDictionary` (keyed `string → Root`) and `actionsDictionary1` (keyed `string → Action<object>`) are both populated from JSON config files. All keys are stored lowercase for case-insensitive lookup.
 - `TryGetActionDelegate` is the registry that maps action type name strings (e.g. `"OpenWebPage"`) to delegates. **Adding a new action type requires a new case here.**
 
-**`Actions`** is a `static partial` class split across three files:
+**`Actions`** is a `static partial` class split across nine files:
 - `Actions.cs` — core actions: `OpenWebPage`, `OpenCMD`, `OpenCMDAtLocation`, `OpenCMDPersistent`, `OpenCMDWithParams`, `OpenPowerShell`, `OpenPowerShellAtLocation`, `OpenPowerShellPersistent`, `OpenPowerShellWithParams`, `OpenFile`, `TextToClipboard`, `AddToConfig`, `ListActions`, `SelectMenu`, `PlaySound`, `DisplayRandomQuote`, `QuickNote`
 - `ConfigActions.cs` — `RemoveFromConfig`, `RemoveConfigPath`
-- `NoteActions.cs` — `AddNote`, `ConfigureNote`
+- `NoteActions.cs` — `AddNote`, `ConfigureNote` (the "sticky note" / todo-item feature — see note below), `ConfigureQuickNote`
 - `AppSettingsActions.cs` — `SetConfigPath`
+- `EditActions.cs` — `EditConfig` (interactive wizard to edit an existing shortcut entry)
+- `QuoteActions.cs` — `AddQuote`, `RemoveQuote`, `EditQuote`, `ToggleQuotes` (the random post-action quote pool)
+- `SoundActions.cs` — `ConfigureSuccessSound`, `ConfigureErrorSound`
+- `TimerActions.cs` — `StartTimer`, `ViewTimerHistory`, `ConfigureTimer` (focus-goal countdown timer with saved/resumable goals and history)
+- `WorkLogActions.cs` — `AddWorkLog`, `ConfigureWorkLog`
+- `WindowActions.cs` — `ConfigureCloseTimeout` (how long an `OpenCMD`/`OpenPowerShell` launcher window stays open before auto-closing)
+- `DocsActions.cs` — `ShowHelp`, `ShowDocs` (the tool's own in-app `cc help` / `cc docs` reference — keep this in sync whenever an action type or built-in shortcut is added or changed)
+
+**Note-like features are easy to conflate — they are three distinct, independently-configured things:**
+- `AddNote` (`cc sn`, aliases `td`/`todo`) — appends a single Markdown checkbox line (`- [ ] ...`) to one configured "sticky note" file. No file is opened; it's a fire-and-forget capture. Configure the path with `ConfigureNote` (`cc cn`).
+- `AddWorkLog` (`cc wl`, alias `worklog`) — appends a single timestamped line (`MM-dd-yyyy h:mm tt = ...`) to a separate work-log file, for a running log of what you did when. Configure the path with `ConfigureWorkLog` (`cc cwl`).
+- `QuickNote` (`cc note`, aliases `quicknote`/`qn`) — creates a brand-new dated `.md` file each time (`quickNote-<date-time>.md`) in a configured folder and opens it in an editor (Notepad/Notepad++/VS Code on Windows, TextEdit on macOS), for longer free-form notes. Configure the folder/editor with `ConfigureQuickNote` (`cc cqn`).
 
 ### Configuration
 
@@ -92,6 +104,22 @@ If `parameter` is `"prompt"` in a config entry, the tool will ask for user input
 | `RemoveConfigPath` | Removes a config JSON file path from user appsettings |
 | `AddNote` | Appends a markdown todo item to a notes file |
 | `ConfigureNote` | Sets/clears the notes file path in user appsettings |
-| `QuickNote` | Creates a timestamped `.md` file and opens it in Notepad |
+| `QuickNote` | Creates a timestamped `.md` file and opens it in the configured editor (Notepad/Notepad++/VS Code on Windows, TextEdit on macOS) |
+| `ConfigureQuickNote` | Sets/clears the quick-note folder and picks the Windows editor (Notepad/Notepad++/VS Code) |
+| `AddWorkLog` | Appends a timestamped entry to a work log file (distinct from `AddNote`/`QuickNote` — see note above) |
+| `ConfigureWorkLog` | Sets/clears the file path where work log entries are saved |
+| `EditConfig` | Interactive wizard to edit an existing shortcut entry in a config file |
+| `AddQuote` | Adds a quote to the personal random-quote pool |
+| `RemoveQuote` | Removes a quote from the personal random-quote pool |
+| `EditQuote` | Edits an existing quote in the personal random-quote pool |
+| `ToggleQuotes` | Enables/disables the random quote shown after each action |
+| `StartTimer` | Starts/resumes a focus-goal countdown timer (supports multiple saved goals, pause/resume, and outcome logging) |
+| `ViewTimerHistory` | Shows a table of completed/abandoned timer goals plus any in-progress saved goals |
+| `ConfigureTimer` | Sets/resets the file path where timer goal data is saved |
+| `ConfigureSuccessSound` | Sets/clears a custom sound played after a successful action |
+| `ConfigureErrorSound` | Sets/clears a custom sound played after a failed action |
+| `ConfigureCloseTimeout` | Sets how many seconds a launcher-opened command/PowerShell window waits before auto-closing |
+| `ShowHelp` | Prints the `cc help` quick-reference card |
+| `ShowDocs` | Prints the `cc docs` detailed, topic-based guides |
 | `list` | Prints all loaded shortcuts as a tree |
 | `Menu` | Interactive selection menu of all shortcuts |

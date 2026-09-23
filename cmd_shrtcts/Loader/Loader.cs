@@ -315,6 +315,9 @@ namespace cmd_shrtcts
                 case "QuickNote":
                     action = (parameter) => Actions.QuickNote(parameter.ToString() ?? string.Empty);
                     return true;
+                case "ConfigureQuickNote":
+                    action = (parameter) => Actions.ConfigureQuickNote(parameter.ToString() ?? string.Empty);
+                    return true;
                 case "ConfigureSuccessSound":
                     action = (parameter) => Actions.ConfigureSuccessSound(parameter.ToString() ?? string.Empty);
                     return true;

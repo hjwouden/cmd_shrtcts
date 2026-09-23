@@ -24,6 +24,7 @@ public static partial class Actions
             ("cc timer",         "Goal-focused countdown timer with history"),
             ("cc timerhistory",  "View completed goals table"),
             ("cc sn",            "Append a quick todo item to your notes file"),
+            ("cc note",          "Create a dated note and open it in Notepad/Notepad++/VS Code"),
             ("cc wl",            "Append a timestamped work log entry"),
         });
 
@@ -38,10 +39,14 @@ public static partial class Actions
         PrintHelpSection("SETTINGS", new[]
         {
             ("cc cn",            "Configure notes file path"),
+            ("cc cqn",           "Configure quick note folder and editor"),
             ("cc cwl",           "Configure work log file path"),
             ("cc ctimer",        "Configure timer data file path"),
             ("cc addquote",      "Add a quote to the random pool"),
             ("cc togglequotes",  "Enable / disable random quotes"),
+            ("cc successsound",  "Set a custom sound played after a successful action"),
+            ("cc errorsound",    "Set a custom sound played after a failed action"),
+            ("cc closetimeout",  "Set how long a launcher command window waits before closing"),
         });
 
         AnsiConsole.MarkupLine("[grey]Run [bold]cc docs[/] for detailed guides · [bold]cc list[/] for all shortcuts.[/]");
@@ -59,7 +64,7 @@ public static partial class Actions
     public static void ShowDocs(string unused)
     {
         Console.WriteLine();
-        var topics = new[] { "Getting Started", "Timer", "Notes & Work Log", "Managing Shortcuts", "Quotes" };
+        var topics = new[] { "Getting Started", "Timer", "Notes & Work Log", "Managing Shortcuts", "Quotes", "Sounds & Window Behavior" };
         var topic = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("[bold]Documentation — choose a topic:[/]")
@@ -78,6 +83,7 @@ public static partial class Actions
             "Notes & Work Log"   => NotesWorkLogDocs,
             "Managing Shortcuts" => ManagingShortcutsDocs,
             "Quotes"             => QuotesDocs,
+            "Sounds & Window Behavior" => SoundsWindowDocs,
             _                    => Array.Empty<string>(),
         };
 
@@ -132,18 +138,19 @@ public static partial class Actions
         "  [green]Green[/]  → plenty of time remaining",
         "  [yellow]Yellow[/] → under 5 minutes",
         "  [red]Red[/]    → under 1 minute",
-        "  Press [bold]Enter[/] at any time to mark the goal done early.",
+        "  [bold]Enter[/] = mark the goal done early   [bold]P[/] / [bold]Space[/] = pause or resume   [bold]E[/] / [bold]Esc[/] = stop without finishing",
         "",
-        "[bold]When time runs out (or you press Enter)[/]",
+        "[bold]When time runs out (or you stop early)[/]",
         "  You are asked for an outcome:",
         "  1. [green]Completed ✓[/]     — goal is logged as done and added to history",
         "  2. [yellow]Need more time[/]  — enter extra minutes, countdown continues",
         "  3. [cyan]Save for later[/]  — goal is saved; resume it the next time you run [cyan]cc timer[/]",
         "",
-        "[bold]Resuming a saved goal[/]",
-        "  If you have a saved goal, [cyan]cc timer[/] will show it first and offer:",
-        "  · Resume saved goal        — picks up where you left off",
-        "  · Abandon it and start new — logs as Abandoned, starts fresh",
+        "[bold]Multiple saved goals[/]",
+        "  You can have more than one goal saved at once. [cyan]cc timer[/] lists them and offers:",
+        "  · Pick a saved goal to resume it where you left off",
+        "  · [green]+ Start a new goal[/]     — begins another one alongside the saved goals",
+        "  · Abandon a saved goal     — logs it as Abandoned and removes it from the list",
         "  · Cancel",
         "",
         "[bold]Viewing your history[/]",
@@ -156,30 +163,56 @@ public static partial class Actions
 
     private static readonly string[] NotesWorkLogDocs =
     {
-        "[bold underline]cc sn — Sticky Note[/]  [grey](aliases: note, AddNote)[/]",
+        "[bold]Three separate features, three separate files — at a glance:[/]",
         "",
-        "  Appends a Markdown checkbox item to your notes file:",
+        "  [cyan]cc sn[/]    single checkbox line, appended silently, no file opens   → sticky note",
+        "  [cyan]cc wl[/]    single timestamped line, appended silently, no file opens → work log",
+        "  [cyan]cc note[/]  brand-new dated file created AND opened in an editor      → quick note",
+        "",
+        "[grey]────────────────────────────────────────────────────[/]",
+        "",
+        "[bold underline]cc sn — Sticky Note[/]  [grey](aliases: td, todo)[/]",
+        "",
+        "  Appends a Markdown checkbox item to ONE ongoing notes file:",
         "  [grey]- [[ ]] your text here[/]",
         "",
         "  You are prompted to type your note, then it is appended immediately.",
+        "  No file is opened — this is a fast, fire-and-forget capture.",
         "  Type [bold]exit[/] to cancel without writing.",
         "",
         "  Configure the file path:  [cyan]cc cn[/]  (configurenote)",
         "",
         "[grey]────────────────────────────────────────────────────[/]",
         "",
-        "[bold underline]cc wl — Work Log[/]  [grey](aliases: worklog, AddWorkLog)[/]",
+        "[bold underline]cc wl — Work Log[/]  [grey](aliases: worklog)[/]",
         "",
-        "  Appends a timestamped entry to your work log file:",
+        "  Appends a timestamped entry to a SEPARATE, ongoing work log file:",
         "  [grey]06-23-2026 2:15 PM = your entry here[/]",
         "",
-        "  Useful for tracking what you worked on throughout the day.",
+        "  Useful for tracking what you worked on throughout the day — same",
+        "  fire-and-forget style as [cyan]cc sn[/], but its own file and timestamped",
+        "  instead of a checkbox.",
         "  Type [bold]exit[/] to cancel without writing.",
         "",
         "  Configure the file path:  [cyan]cc cwl[/]  (configureworklog)",
         "",
-        "Both files are plain text / Markdown and open in any editor.",
-        "Neither file is created until you use the command for the first time.",
+        "[grey]────────────────────────────────────────────────────[/]",
+        "",
+        "[bold underline]cc note — Quick Note[/]  [grey](aliases: quicknote, qn)[/]",
+        "",
+        "  Creates a brand-new file named [grey]quickNote-<date-time>.md[/] in your",
+        "  configured folder and opens it right away — handy for meeting notes or",
+        "  anything longer than one line, unlike the single silently-appended line",
+        "  of [cyan]cc sn[/] or [cyan]cc wl[/].",
+        "",
+        "  Opens in Notepad by default on Windows; TextEdit on macOS.",
+        "  Notepad++ or VS Code can be selected instead — see below.",
+        "",
+        "  Configure the folder and editor:  [cyan]cc cqn[/]  (configurequicknote)",
+        "  On first use (if unconfigured) you'll be prompted for a folder to save into.",
+        "",
+        "All three files are plain text / Markdown and open in any editor.",
+        "None of them is created until you use its command for the first time.",
     };
 
     private static readonly string[] ManagingShortcutsDocs =
@@ -238,5 +271,24 @@ public static partial class Actions
         "",
         "Quotes appear after the action completes, in a muted style.",
         "They do not appear if quotes are disabled via [cyan]cc togglequotes[/].",
+    };
+
+    private static readonly string[] SoundsWindowDocs =
+    {
+        "[bold]Success / error sounds[/]",
+        "  A short sound plays after an action succeeds or fails (chime.wav / chord.wav",
+        "  by default).",
+        "",
+        "  [cyan]cc successsound[/]  — set or clear a custom sound played on success",
+        "  [cyan]cc errorsound[/]    — set or clear a custom sound played on failure",
+        "  Point either at your own [grey].wav[/] file, or clear it to revert to the bundled default.",
+        "",
+        "[bold]Launcher window close timeout[/]",
+        "  [cyan]OpenCMD[/] / [cyan]OpenPowerShell[/] shortcuts open a window, run the command,",
+        "  then auto-close after a short countdown (persistent variants like",
+        "  [cyan]OpenCMDPersistent[/] stay open instead).",
+        "",
+        "  [cyan]cc closetimeout[/]  (aliases: [cyan]windowtimeout[/])",
+        "  Set how many seconds that countdown lasts. 0 closes the window immediately.",
     };
 }
